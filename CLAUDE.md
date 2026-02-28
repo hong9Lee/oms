@@ -24,63 +24,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-OMS (Order Management System) MSA - 2개의 마이크로서비스 레포지토리입니다. 향후 주문부터 배송까지 전체 주문 이행 라이프사이클을 처리하게 됩니다.
+OMS (Order Management System) MSA. 주문 이행 라이프사이클을 처리하는 2개의 마이크로서비스로 구성된다.
 
-## 공통 AI 컨텍스트
+| 서비스 | 역할 |
+|--------|------|
+| `oms-core/` | 주문 엔진 (Single Source of Truth) |
+| `oms-plan/` | 외부 API 게이트웨이 |
 
-| 문서 | 설명 |
-|------|------|
-| [domain-glossary.md](.claude/ai-context/domain-glossary.md) | OMS MSA 핵심 도메인 용어집 (DeliveryPolicy, Courier, 1P/3P 등) |
-| [pr-template.md](.claude/ai-context/pr-template.md) | PR 작성 템플릿 |
-
-## MSA 서비스 디렉토리
-
-```
-oms-msa/
-├── oms-plan/               # 외부 API 게이트웨이
-├── oms-core/               # 주문 엔진 (Single Source of Truth)
-```
-
-각 서비스에는 상세 가이드가 포함된 `CLAUDE.md` 파일이 있습니다.
-
-## 서비스별 AI 컨텍스트
-
-각 서비스의 `.claude/ai-context/` 폴더에는 다음 문서들이 있습니다:
-
-| 파일 | 설명 | 로드 시점 |
-|------|------|----------|
-| `domain-overview.md` | 도메인 개요, 핵심 개념 | 즉시 |
-| `data-model.md` | 데이터 구조, 엔티티 관계 | 즉시 |
-| `api-spec.json` | API 명세 | 질문 시 |
-| `kafka-spec.json` | Kafka 토픽, 이벤트 스키마 | 질문 시 |
-| `external-integration.md` | 외부 시스템 연동 | 질문 시 |
-| `development-guide.md` | 개발 가이드 | Backend/Frontend 역할 시 |
-| `deploy-guide.md` | 배포 절차 | 배포 요청 시 |
+각 서비스에 `CLAUDE.md`와 `.claude/ai-context/` 폴더가 있다. 로드 시점은 역할별 README에서 관리한다.
 
 ---
 
 ## [MANDATORY] Agent 행동 규칙
 
-**사용자가 명시적으로 요청한 작업만 수행하라. 요청 범위를 임의로 확장하지 마라.**
+명시적으로 요청된 작업만 수행한다. 요청 범위를 임의로 확장하지 않는다.
 
 ### main 브랜치 보호
 
-main에서 직접 커밋/push 절대 금지. 모든 변경은 feature 브랜치 → PR로만 반영한다.
-PR 머지(`gh pr merge` 포함)는 Agent가 수행하지 않는다. 엔지니어가 직접 머지한다.
+- `main`(또는 `master`)에 직접 커밋/push 금지. 모든 변경은 feature 브랜치 → PR로 반영한다.
+- PR 머지(`gh pr merge` 포함) 금지. 엔지니어가 직접 머지한다.
 
-### 작업별 트리거
+### 코드 수정과 git 작업의 분리
 
-**모든 git 작업은 해당 대화 턴에서 사용자가 명시적으로 요청해야만 수행한다.**
-이전 대화에서 "push해"라고 했더라도, 이후 변경사항에 자동 적용되지 않는다.
-**매번 새로운 명시적 요청이 필요하다.**
+코드 수정 요청은 **파일 변경만** 의미한다.
+`git commit`, `git push`, `gh pr create`는 **암묵적으로 포함되지 않는다**.
+git 작업은 **해당 메시지에서** 별도로 명시해야 수행한다. 이전 메시지의 요청은 이후에 자동 적용되지 않는다.
 
-| 작업 | 트리거 | 비고 |
-|------|--------|------|
-| 커밋 | "커밋해" | 해당 턴에서 명시적 요청 필요 |
-| push | "push해" | 해당 턴에서 명시적 요청 필요. 커밋은 선행 작업으로 자동 포함 |
-| PR 생성 | "PR 올려" | 해당 턴에서 명시적 요청 필요 |
-| 브랜치 + 작업 | "작업해봐" | 브랜치 생성 + 코드 수정까지만 |
-| 배포 | "배포해" | `/deploy` 스킬 참조 |
+| 작업 | 트리거 키워드 | 수행 범위 |
+|------|-------------|----------|
+| 커밋 | "커밋" | `git add` + `git commit` |
+| push | "push", "푸쉬" | `git add` + `git commit` + `git push` |
+| PR | "PR" | `gh pr create` |
+| 브랜치 + 작업 | "브랜치 따서 작업" | `git checkout -b` + 파일 수정까지만 |
+| 배포 | "배포" | `/deploy` 스킬 참조 |
 
 ---
 
@@ -91,5 +67,6 @@ PR 머지(`gh pr merge` 포함)는 Agent가 수행하지 않는다. 엔지니어
 | 역할별 가이드 | `.claude/role/{role}/README.md` |
 | 서비스별 상세 | `{서비스}/CLAUDE.md` |
 | 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
+| PR 작성 | `.claude/ai-context/pr-template.md` |
 | 개발 컨벤션 | `/develop` 스킬 |
 | 배포 절차 | `/deploy` 스킬 |

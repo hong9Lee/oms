@@ -306,16 +306,15 @@ BRANCH:
     - git checkout -b {type}/{description}
 
 MAIN_BRANCH_PROTECTION:
-  RULE: main에 직접 커밋/push/머지 절대 금지 (상세: CLAUDE.md 참조)
+  RULE: main에 직접 커밋/push 절대 금지. PR 머지도 Agent가 수행하지 않는다. (상세: CLAUDE.md 참조)
 
 CONFIRM_REQUIRED:
+  - git commit (로컬 커밋)
   - git push (원격 반영)
-  - git merge (브랜치 병합)
   - PR 생성
 
 AUTO_ALLOWED:
   - 로컬 브랜치 생성
-  - 로컬 커밋
   - 빌드 / 테스트
   - 코드 포맷팅
 ```
