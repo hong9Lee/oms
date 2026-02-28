@@ -43,52 +43,23 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 
 ---
 
-## 기술 스택
+## 참조 가이드
 
-| 항목 | 기술 |
+| 상황 | 참조 |
 |------|------|
-| 언어 | Java 21 |
-| 프레임워크 | Spring Boot (MVC / WebFlux - 서비스별 상이) |
-| 빌드 | Gradle |
-| 메시징 | Kafka |
-| 코드 포맷팅 | Spotless |
-| 환경 프로파일 | local / dev / stg / perf / prod |
-
----
-
-## 코딩 컨벤션 및 개발 가이드
-
-코드 컨벤션, 빌드 명령어, 클래스 구조 등 상세 개발 가이드는 `/develop` 스킬을 참조한다.
-
-> 서비스별 아키텍처, 테스트 컨벤션은 `{서비스}/.claude/ai-context/development-guide.md`에 정의되어 있다.
-
----
-
-## 주요 참조 문서
-
-| 상황 | 참조 파일 |
-|------|----------|
-| 도메인 용어 확인 | `.claude/ai-context/domain-glossary.md` |
+| 코드 컨벤션 / 빌드 / 아키텍처 | `/develop` 스킬 |
+| 서비스별 오버라이드 | `{서비스}/.claude/ai-context/development-guide.md` |
+| 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
 | PR 작성 | `.claude/ai-context/pr-template.md` |
-| 배포 준비 | 루트 `CLAUDE.md`의 배포 준비 6단계 |
-| 서비스별 상세 | 각 서비스의 `CLAUDE.md` 및 `.claude/ai-context/` |
+| 배포 | 루트 `CLAUDE.md` 배포 준비 6단계 |
 
 ---
 
-## 온디맨드 컨텍스트 로드 가이드
-
-다음 상황에서 추가 파일을 로드한다:
+## 온디맨드 컨텍스트 로드
 
 | 상황 | 로드할 파일 |
 |------|-----------|
-| API 설계/수정 질문 | `{서비스}/.claude/ai-context/api-spec.json` |
-| Kafka 토픽/이벤트 질문 | `{서비스}/.claude/ai-context/kafka-spec.json` |
-| 외부 시스템 연동 질문 | `{서비스}/.claude/ai-context/external-integration.md` |
-| 배포 요청 | `{서비스}/.claude/ai-context/deploy-guide.md` |
-
----
-
-## 배포 관련 참고
-
-배포 요청을 받으면 루트 `CLAUDE.md`의 **배포 준비 필수 규칙 (MANDATORY)** 섹션을 따른다.
-필수 정보(프로젝트명, PR URL)가 없으면 반드시 사용자에게 질문한다.
+| API 설계/수정 | `{서비스}/.claude/ai-context/api-spec.json` |
+| Kafka 토픽/이벤트 | `{서비스}/.claude/ai-context/kafka-spec.json` |
+| 외부 시스템 연동 | `{서비스}/.claude/ai-context/external-integration.md` |
+| 배포 | `{서비스}/.claude/ai-context/deploy-guide.md` |
