@@ -5,6 +5,16 @@
 
 ---
 
+## 머지 전략
+
+**모든 OMS 저장소는 Rebase and merge를 기본 머지 전략으로 사용합니다.**
+
+- PR 머지 시: `gh pr merge --rebase` 사용
+- 깃 그래프를 선형(linear)으로 유지하기 위함
+- merge commit 생성 금지 (--merge, --squash 사용 X)
+
+---
+
 ## PR 템플릿
 
 ```markdown
