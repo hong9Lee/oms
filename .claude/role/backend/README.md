@@ -51,7 +51,7 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 | 서비스별 오버라이드 | `{서비스}/.claude/ai-context/development-guide.md` |
 | 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
 | PR 작성 | `.claude/ai-context/pr-template.md` |
-| 배포 | 루트 `CLAUDE.md` 배포 준비 6단계 |
+| 배포 | `/deploy` 스킬 |
 
 ---
 
