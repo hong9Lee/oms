@@ -30,7 +30,7 @@ OMS (Order Management System) MSA - 2개의 마이크로서비스 레포지토�
 
 | 문서 | 설명 |
 |------|------|
-| [domain-glossary.md](.claude/ai-context/domain-glossary.md) | OMS MSA 핵심 도메인 용어집 (OrderType, TemperatureType 등) |
+| [domain-glossary.md](.claude/ai-context/domain-glossary.md) | OMS MSA 핵심 도메인 용어집 (DeliveryPolicy, Courier, 1P/3P 등) |
 | [pr-template.md](.claude/ai-context/pr-template.md) | PR 작성 템플릿 |
 
 ## MSA 서비스 디렉토리
@@ -131,6 +131,18 @@ python3 auto-fill-from-pr.py {PR_URL} -d v{새버전} -r v{이전버전} -t "{�
 > "브랜치 만들어서 작업해봐" = 브랜치 생성 + 코드 수정까지. PR/커밋/push는 별도 요청이 있을 때만.
 > "push해" = 커밋 + push. 커밋은 push의 당연한 선행 작업이므로 별도 요청 불필요.
 
+### 🚫 main 브랜치 보호 (절대 규칙)
+
+**main(또는 master) 브랜치에 대해 아래 행위를 절대 수행하지 마라:**
+
+- ❌ `git commit` on main — main에서 직접 커밋 금지
+- ❌ `git push origin main` — main에 직접 push 금지
+- ❌ `git merge ... main` — main으로 머지 금지
+- ❌ `gh pr merge` — PR 머지 금지 (사람이 GitHub UI에서 직접 수행)
+
+**모든 변경은 반드시 feature 브랜치에서 작업하고 PR을 통해서만 main에 반영한다.**
+**PR 머지는 사람이 GitHub에서 직접 수행한다. Agent는 절대 머지하지 않는다.**
+
 ---
 
 ## Important Notes for AI/Claude Code
@@ -139,7 +151,7 @@ python3 auto-fill-from-pr.py {PR_URL} -d v{새버전} -r v{이전버전} -t "{�
 
 2. **서비스별 CLAUDE.md**: 특정 서비스 작업 시 해당 서비스의 `CLAUDE.md` 파일을 먼저 읽으세요.
 
-3. **도메인 용어집 참조**: OrderType, TemperatureType 등 핵심 용어는 `.claude/ai-context/domain-glossary.md`를 참조하세요.
+3. **도메인 용어집 참조**: DeliveryPolicy, Courier, 1P/3P 등 핵심 용어는 `.claude/ai-context/domain-glossary.md`를 참조하세요.
 
 4. **개발 컨벤션**: 코드 컨벤션, 빌드 명령어, 아키텍처, 테스트 규칙 등은 `/develop` 스킬을 참조하세요.
 
