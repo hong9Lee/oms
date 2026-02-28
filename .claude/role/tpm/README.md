@@ -50,12 +50,5 @@ TPM 모드로 전환되었습니다. 다음 작업을 도와드릴 수 있습니
 |------|----------|
 | 도메인 용어 확인 | `.claude/ai-context/domain-glossary.md` |
 | PR 작성 | `.claude/ai-context/pr-template.md` |
-| 배포 준비 | 루트 `CLAUDE.md`의 배포 준비 6단계 |
+| 배포 준비 | `/deploy` 스킬 |
 | 서비스별 상세 | 각 서비스의 `CLAUDE.md` 및 `.claude/ai-context/` |
-
----
-
-## 배포 관련 참고
-
-TPM으로서 배포 요청을 받으면 루트 `CLAUDE.md`의 **배포 준비 필수 규칙 (MANDATORY)** 섹션을 따른다.
-필수 정보(프로젝트명, PR URL)가 없으면 반드시 사용자에게 질문한다.
