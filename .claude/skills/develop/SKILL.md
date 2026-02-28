@@ -294,13 +294,15 @@ DOMAIN_MODEL:
 ENTITY:
   ANNOTATIONS:
     - @Getter
+    - @Builder
     - @Document("{collection_name}")  // MongoDB
     - @NoArgsConstructor(access = AccessLevel.PROTECTED)
     - @AllArgsConstructor
   RULES:
     - 클래스명은 Entity 접미사 (OrderEntity ✅, OrderDocument ❌)
     - @Setter 사용 금지
-    - @AllArgsConstructor로 객체 생성, Spring Data는 protected 기본 생성자 사용
+    - @Builder 또는 @AllArgsConstructor로 객체 생성
+    - @NoArgsConstructor(PROTECTED): Spring Data가 리플렉션으로 사용, 외부 빈 객체 생성 차단
     - @Id, @Indexed 등 필요한 매핑만 사용
 
 KAFKA_CONSUMER:
@@ -408,7 +410,7 @@ AUTO_ALLOWED:
 | 도메인 모델 | @Getter + @Builder + @AllArgsConstructor |
 | 일급 객체 | List → 복수형 클래스로 감싸고 로직 캡슐화 |
 | 캡슐화 | 도메인 로직은 도메인 객체 내부에 위치 |
-| Entity 클래스 | Entity 접미사 (Document ❌) |
+| Entity 클래스 | @Getter + @Builder + @NoArgsConstructor(PROTECTED) + @AllArgsConstructor |
 | Repository | SpringData 수식어 금지 |
 | 변수명 | 클래스명 따라감 |
 | 설정값 | application.yml + @Value |
