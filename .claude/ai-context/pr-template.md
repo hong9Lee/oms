@@ -55,6 +55,37 @@
 
 ---
 
+## AI Context 동기화 규칙
+
+**PR 생성 시, 코드 변경에 따라 해당 서비스의 `.claude/ai-context/` 파일을 함께 업데이트한다.**
+
+이 규칙의 목적은 agent가 다음 세션에서 코드 상태를 정확히 파악할 수 있도록 하는 것이다.
+
+### 동기화 매핑
+
+| 코드 변경 | 업데이트 대상 | 업데이트 내용 |
+|-----------|-------------|-------------|
+| REST API 추가/변경/삭제 | `api-spec.json` | 엔드포인트, method, path, 요청/응답 구조 |
+| Kafka Producer/Consumer 추가/변경/삭제 | `kafka-spec.json` | 토픽명, 이벤트 스키마 |
+| 엔티티/VO/Enum 추가/변경/삭제 | `data-model.md` | 엔티티 필드, 관계, Enum 값 |
+| 외부 시스템 연동 추가/변경 | `external-integration.md` | 연동 대상, 방식, 엔드포인트 |
+| 빌드/의존성/패키지 구조 변경 | `development-guide.md` | 기술 스택, 패키지 경로 |
+
+### 동기화 하지 않는 것
+
+- **도메인 개요 (`domain-overview.md`)**: 비즈니스 흐름, 서비스 역할 설명 — 아키텍처 수준의 변경이 아니면 수정하지 않는다
+- **도메인 용어집 (`domain-glossary.md`)**: 새로운 도메인 용어가 추가된 경우에만 수정한다
+- **배포 가이드 (`deploy-guide.md`)**: 배포 절차 자체가 변경된 경우에만 수정한다
+
+### 예시
+
+헬스체크 API를 추가한 경우:
+- `api-spec.json` → 엔드포인트 추가 (`GET /health`)
+- `domain-overview.md` → 수정 안함 (도메인 변경 아님)
+- `data-model.md` → 수정 안함 (엔티티 변경 없음)
+
+---
+
 ## 예시
 
 ```markdown
