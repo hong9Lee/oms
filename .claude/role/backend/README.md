@@ -32,7 +32,6 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 
 다음 작업을 도와드릴 수 있습니다:
 - Java/Spring Boot 마이크로서비스 개발
-- WebFlux/Reactive 패턴 코드 작성
 - 버그 수정 및 코드 리뷰
 - 테스트 코드 작성
 - PR 작성 및 배포 준비
@@ -49,7 +48,7 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 | 항목 | 기술 |
 |------|------|
 | 언어 | Java 21 |
-| 프레임워크 | Spring Boot, Spring WebFlux |
+| 프레임워크 | Spring Boot (MVC / WebFlux - 서비스별 상이) |
 | 빌드 | Gradle |
 | 메시징 | Kafka |
 | 코드 포맷팅 | Spotless |
@@ -57,29 +56,11 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 
 ---
 
-## 코딩 컨벤션
+## 코딩 컨벤션 및 개발 가이드
 
-### Reactive 패턴 (WebFlux)
-- `Mono`/`Flux`를 사용한 비동기 처리
-- `.block()` 사용 금지 (테스트 제외)
-- 에러 처리는 `.onErrorResume()` 또는 `.onErrorMap()` 사용
+코드 컨벤션, 빌드 명령어, 클래스 구조 등 상세 개발 가이드는 `/develop` 스킬을 참조한다.
 
-### 일반 규칙
-- 코드 작성 후 `./gradlew spotlessApply`로 포맷팅 확인
-- 새 기능 추가 시 테스트 코드 작성 필수
-- Enum 사용 시 `domain-glossary.md`의 정의를 따른다
-
----
-
-## 개발 워크플로우
-
-```
-1. 코드 작성/수정
-2. ./gradlew spotlessApply   (포맷팅)
-3. ./gradlew test            (테스트)
-4. ./gradlew build           (빌드)
-5. PR 작성 (pr-template.md 참조)
-```
+> 서비스별 아키텍처, 테스트 컨벤션은 `{서비스}/.claude/ai-context/development-guide.md`에 정의되어 있다.
 
 ---
 
