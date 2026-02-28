@@ -59,6 +59,47 @@ FORMAT:
 
 ---
 
+## ARCHITECTURE
+
+```dsl
+PATTERN: Hexagonal (Ports & Adapters)
+
+PRINCIPLES:
+  - 도메인은 외부를 모른다: domain 패키지는 adapter에 의존하지 않는다
+  - Port: 도메인이 정의하는 인터페이스 (in: 유스케이스, out: 외부 연동)
+  - Adapter: Port의 구현체 (in: Controller/Consumer, out: Repository/Client)
+  - 의존성 방향: adapter → application → domain (항상 안쪽으로)
+
+PACKAGE_TEMPLATE: |
+  co.oms.{service}/
+  ├── adapter/
+  │   ├── in/
+  │   │   ├── web/             # REST Controller + Request/Response DTO
+  │   │   └── kafka/           # Kafka Consumer
+  │   └── out/
+  │       ├── persistence/     # DB Repository 구현체
+  │       ├── kafka/           # Kafka Producer
+  │       └── client/          # 외부 API 클라이언트 (RestClient)
+  ├── application/
+  │   ├── port/
+  │   │   ├── in/              # Inbound Port (유스케이스 인터페이스)
+  │   │   └── out/             # Outbound Port (외부 연동 인터페이스)
+  │   └── service/             # 유스케이스 구현 (Port.in 구현체)
+  ├── domain/
+  │   ├── model/               # 엔티티, VO, Aggregate Root
+  │   └── enums/               # Enum 정의
+  ├── config/                  # 설정 클래스
+  └── common/                  # 공통 유틸 (예외, 응답 포맷, 헬스체크)
+
+DEPENDENCY_RULES:
+  | 패키지 | 의존 가능 | 의존 불가 |
+  | domain | 없음 (순수) | application, adapter |
+  | application | domain | adapter |
+  | adapter | application, domain | 다른 adapter |
+```
+
+---
+
 ## CODE_CONVENTION
 
 ```dsl
@@ -219,6 +260,34 @@ KAFKA_CONSUMER:
                                     .toList();
         saveOrderUseCase.saveOrders(orders);  // 컨슈머에서 변환+저장 금지
     }
+```
+
+---
+
+## TEST_CONVENTION
+
+```dsl
+NAMING:
+  LANGUAGE: 한글 메서드명 (시나리오 설명)
+  FORMAT: {기능}_{조건이면}_{결과}
+  EXAMPLES:
+    - 주문생성_정상요청이면_READY상태로_생성된다
+    - 주문취소_이미완료된_주문이면_예외발생
+    - 배치주문저장_중복포함이면_중복제외하고_저장된다
+
+STRUCTURE: |
+  src/test/java/co/oms/{service}/
+  ├── domain/model/              # 단위 테스트 (엔티티, VO)
+  ├── application/service/       # 유스케이스 테스트 (Port.out 모킹)
+  └── adapter/
+      ├── in/web/                # API 통합 테스트 (MockMvc)
+      ├── in/kafka/              # Kafka Consumer 통합 테스트
+      └── out/persistence/       # Repository 통합 테스트
+
+RULES:
+  - 새 기능 추가 시 테스트 코드 작성 필수
+  - 단위 테스트: Mockito로 Port.out 모킹
+  - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded Kafka, Flapdoodle MongoDB)
 ```
 
 ---

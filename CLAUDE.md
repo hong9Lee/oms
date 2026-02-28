@@ -141,38 +141,6 @@ python3 auto-fill-from-pr.py {PR_URL} -d v{새버전} -r v{이전버전} -t "{�
 
 3. **도메인 용어집 참조**: OrderType, TemperatureType 등 핵심 용어는 `.claude/ai-context/domain-glossary.md`를 참조하세요.
 
-4. **데이터 소유권**: SOMS가 주문 데이터의 Single Source of Truth입니다. 다른 서비스는 이벤트를 구독하거나 API를 통해 조회합니다.
+4. **개발 컨벤션**: 코드 컨벤션, 빌드 명령어, 아키텍처, 테스트 규칙 등은 `/develop` 스킬을 참조하세요.
 
-5. **Reactive 패턴**: 대부분의 서비스가 WebFlux를 사용합니다. Mono/Flux 사용법과 에러 처리에 주의하세요.
-
-6. **배포 요청 시**: 반드시 6단계 배포 규칙을 따르세요. 태그 생성(5단계)은 필수입니다.
-
-7. **환경 프로파일**: 모든 서비스는 동일한 환경 프로파일을 지원합니다 (local/dev/stg/perf/prod).
-
----
-
-## Quick Reference
-
-### 공통 Gradle 명령어
-```bash
-./gradlew bootRun          # 로컬 실행
-./gradlew test             # 테스트
-./gradlew build            # 빌드
-./gradlew spotlessApply    # 코드 포맷팅
-```
-
-### 공통 npm 명령어 (Frontend)
-```bash
-npm install                # 의존성 설치
-npm run dev                # 개발 서버
-npm run build:dev          # 개발 빌드
-npm run lint               # 린트
-```
-
-### 로컬 개발 포트
-| 서비스                 | 포트 |
-|---------------------|------|
-| OMS-PLAN            | 8080 |
-| OMS-CORE            | 8081 |
-
-> 상세 개발 가이드는 각 역할별 README.md를 참조하세요.
+5. **배포 요청 시**: 반드시 위 배포 준비 6단계를 따르세요. 태그 생성(5단계)은 필수입니다.
