@@ -59,47 +59,33 @@ oms-msa/
 
 ---
 
-## 🚨 배포 준비 (MANDATORY)
-
-**배포 요청 시 `/deploy` 스킬을 참조하세요.** 6단계 배포 절차, 버전 규칙, 실행 명령어가 정의되어 있습니다.
-
----
-
 ## [MANDATORY] Agent 행동 규칙
 
 **사용자가 명시적으로 요청한 작업만 수행하라. 요청 범위를 임의로 확장하지 마라.**
 
-- **커밋**: "커밋해" 라고 말하기 전까지 커밋하지 마라
-- **PR 생성**: "PR 올려" 라고 말하기 전까지 PR을 생성하지 마라
-- **push**: "push해" 라고 말하면 unstaged 변경사항을 커밋한 후 push한다 (커밋은 push의 선행 작업)
-- **머지**: "머지해" 라고 말하기 전까지 머지하지 마라
-- **브랜치 생성 + 작업**: 브랜치 만들고 작업하라는 요청은 코드 변경까지만 수행한다
+### main 브랜치 보호
 
-> "브랜치 만들어서 작업해봐" = 브랜치 생성 + 코드 수정까지. PR/커밋/push는 별도 요청이 있을 때만.
-> "push해" = 커밋 + push. 커밋은 push의 당연한 선행 작업이므로 별도 요청 불필요.
+main에서 직접 커밋/push 절대 금지. 모든 변경은 feature 브랜치 → PR로만 반영한다.
+PR 머지(`gh pr merge` 포함)는 Agent가 수행하지 않는다. 사람이 GitHub UI에서만 수행한다.
 
-### 🚫 main 브랜치 보호 (절대 규칙)
+### 작업별 트리거
 
-**main(또는 master) 브랜치에 대해 아래 행위를 절대 수행하지 마라:**
-
-- ❌ `git commit` on main — main에서 직접 커밋 금지
-- ❌ `git push origin main` — main에 직접 push 금지
-- ❌ `git merge ... main` — main으로 머지 금지
-- ❌ `gh pr merge` — PR 머지 금지 (사람이 GitHub UI에서 직접 수행)
-
-**모든 변경은 반드시 feature 브랜치에서 작업하고 PR을 통해서만 main에 반영한다.**
-**PR 머지는 사람이 GitHub에서 직접 수행한다. Agent는 절대 머지하지 않는다.**
+| 작업 | 트리거 | 비고 |
+|------|--------|------|
+| 커밋 | "커밋해" | 명시적 요청 전까지 금지 |
+| push | "push해" | 커밋은 선행 작업으로 자동 포함 |
+| PR 생성 | "PR 올려" | 명시적 요청 전까지 금지 |
+| 브랜치 + 작업 | "작업해봐" | 브랜치 생성 + 코드 수정까지만 |
+| 배포 | "배포해" | `/deploy` 스킬 참조 |
 
 ---
 
-## Important Notes for AI/Claude Code
+## 참조
 
-1. **역할별 가이드 우선**: 사용자 역할에 맞는 `.claude/role/{role}/README.md` 파일을 먼저 참조하세요.
-
-2. **서비스별 CLAUDE.md**: 특정 서비스 작업 시 해당 서비스의 `CLAUDE.md` 파일을 먼저 읽으세요.
-
-3. **도메인 용어집 참조**: DeliveryPolicy, Courier, 1P/3P 등 핵심 용어는 `.claude/ai-context/domain-glossary.md`를 참조하세요.
-
-4. **개발 컨벤션**: 코드 컨벤션, 빌드 명령어, 아키텍처, 테스트 규칙 등은 `/develop` 스킬을 참조하세요.
-
-5. **배포 요청 시**: `/deploy` 스킬의 6단계 절차를 따르세요.
+| 상황 | 참조 |
+|------|------|
+| 역할별 가이드 | `.claude/role/{role}/README.md` |
+| 서비스별 상세 | `{서비스}/CLAUDE.md` |
+| 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
+| 개발 컨벤션 | `/develop` 스킬 |
+| 배포 절차 | `/deploy` 스킬 |
