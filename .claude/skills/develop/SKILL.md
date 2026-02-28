@@ -305,6 +305,15 @@ BRANCH:
     - git pull origin main
     - git checkout -b {type}/{description}
 
+MAIN_BRANCH_PROTECTION:
+  RULE: main 브랜치에 직접 커밋/push/머지 절대 금지
+  FORBIDDEN:
+    - git commit on main
+    - git push origin main
+    - git merge ... main
+    - gh pr merge (PR 머지는 사람이 GitHub UI에서 수행)
+  POLICY: 모든 변경은 feature 브랜치 → PR → 사람이 머지
+
 CONFIRM_REQUIRED:
   - git push (원격 반영)
   - git merge (브랜치 병합)

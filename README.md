@@ -115,7 +115,7 @@ OMS/
 
 | 역할 | 이런 질문을 할 수 있어요 |
 |------|------------------------|
-| **TPM** | "주문 상태 흐름 설명해줘", "oms-plan과 oms-core의 역할 차이가 뭐야?", "TemperatureType 종류 알려줘" |
+| **TPM** | "주문 상태 흐름 설명해줘", "oms-plan과 oms-core의 역할 차이가 뭐야?", "DeliveryPolicy 종류 알려줘" |
 | **Backend** | "oms-core 배포 준비해줘", "PR 만들어줘", "주문 생성 시 Kafka 이벤트 흐름이 어떻게 돼?" |
 
 ---
@@ -125,7 +125,7 @@ OMS/
 | 기능 | 설명 |
 |------|------|
 | **역할 기반 컨텍스트** | TPM / Backend 역할에 따라 다른 가이드 제공 |
-| **도메인 용어집** | OrderType, TemperatureType 등 핵심 용어 즉시 조회 |
+| **도메인 용어집** | DeliveryPolicy, Courier, 1P/3P 등 핵심 용어 즉시 조회 |
 | **배포 자동화** | 6단계 배포 프로세스를 Claude Agent가 순차 실행 |
 | **PR 생성** | gh CLI를 통한 PR 생성 및 템플릿 적용 |
 | **서비스별 AI 컨텍스트** | API 스펙, 데이터 모델, Kafka 이벤트 등 서비스별 문서 관리 |
