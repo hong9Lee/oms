@@ -2,20 +2,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Overview
+---
 
-OMS (Order Management System) MSA - 2개의 마이크로서비스 레포지토리입니다. 향후 주문부터 배송까지 전체 주문 이행 라이프사이클을 처리하게 됩니다.
+## [MANDATORY] 세션 시작 시 역할 선택 (최우선 실행)
 
-## 역할 기반 작업 가이드
+**세션의 첫 번째 사용자 메시지를 받으면, 어떤 내용이든 상관없이 반드시 아래를 먼저 수행하라:**
 
-> **Claude는 사용자 역할에 따라 다른 컨텍스트를 로드합니다.**
->
-> 세션 시작 시 역할을 선택하면 해당 역할에 맞는 상세 가이드가 제공됩니다.
+1. 사용자에게 역할을 선택하도록 질문한다 (AskUserQuestion 도구 사용)
+2. 사용자가 역할을 선택하면 해당 가이드 파일을 즉시 읽는다 (Read 도구 사용)
+3. 가이드 파일의 [MANDATORY] 섹션을 실행한다
+4. 그 후에 사용자의 원래 요청을 처리한다
 
 | 역할 | 설명 | 가이드 파일 |
 |------|------|------------|
-| **TPM** | 기술 설계 및 아키텍처 (개발자 출신 PM) | [.claude/role/tpm/README.md](.claude/role/tpm/README.md) |
-| **Backend** | Java/Spring Boot 마이크로서비스 개발 | [.claude/role/backend/README.md](.claude/role/backend/README.md) |
+| **TPM** | 기술 설계 및 아키텍처 (개발자 출신 PM) | `.claude/role/tpm/README.md` |
+| **Backend** | Java/Spring Boot 마이크로서비스 개발 | `.claude/role/backend/README.md` |
+
+**이 단계를 건너뛰지 마라. 사용자가 "hi"라고만 입력해도 역할 선택을 먼저 수행하라.**
+
+---
+
+## Repository Overview
+
+OMS (Order Management System) MSA - 2개의 마이크로서비스 레포지토리입니다. 향후 주문부터 배송까지 전체 주문 이행 라이프사이클을 처리하게 됩니다.
 
 ## 공통 AI 컨텍스트
 
@@ -28,9 +37,8 @@ OMS (Order Management System) MSA - 2개의 마이크로서비스 레포지토�
 
 ```
 oms-msa/
-├── oms-order-operation/               # 외부 API 게이트웨이
-├── soms/                              # 주문 엔진 (Single Source of Truth)
-└── oms-tools/                         # 배포 도구
+├── oms-plan/               # 외부 API 게이트웨이
+├── oms-core/               # 주문 엔진 (Single Source of Truth)
 ```
 
 각 서비스에는 상세 가이드가 포함된 `CLAUDE.md` 파일이 있습니다.
