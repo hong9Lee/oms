@@ -110,7 +110,8 @@ GENERAL:
   CONSTANTS: private static final (클래스 상단)
   GETTER: @Getter 사용 가능
   SETTER: ❌ @Setter 절대 사용 금지
-  RECORD: 가능한 모든 곳에서 Java record 사용
+  RECORD: 가능한 모든 곳에서 Java record 사용 (적극 사용)
+  OBJECT_CREATION: record가 아닌 도메인 모델은 @Getter + @Builder + @AllArgsConstructor
 
 CONFIG_VALUES:
   RULE: 설정값은 application.yml에 작성하고 @Value로 주입
@@ -141,6 +142,52 @@ RECORD_USAGE:
   NOT_APPLICABLE:
     - MongoDB Entity (Spring Data 매핑 필요)
     - 상태 변경이 필요한 도메인 모델
+
+DOMAIN_MODEL:
+  CREATION: @Getter + @Builder + @AllArgsConstructor
+  ENCAPSULATION:
+    - 도메인 로직은 도메인 객체 내부에 캡슐화한다
+    - 외부에서 상태를 꺼내서 조작하지 않는다 (Tell, Don't Ask)
+    - 상태 변경은 의미 있는 메서드로 표현한다
+  EXAMPLE: |
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public class Order {
+        private final String id;
+        private final OrderStatus status;
+        private final List<OrderItem> items;
+
+        /** 취소 가능 여부 판단 */
+        public boolean isCancelable() {
+            return this.status == OrderStatus.RECEIVED;
+        }
+    }
+
+FIRST_CLASS_COLLECTION:
+  RULE: List를 반복 사용하면 일급 객체로 감싸고 관련 로직을 내부에 캡슐화
+  NAMING: 도메인 모델의 복수형 (Order → Orders, OrderItem → OrderItems)
+  RULES:
+    - 컬렉션을 직접 노출하지 않는다
+    - 필터링, 집계, 검증 로직은 일급 객체 내부에 위치
+    - record로 선언 가능 (불변 보장)
+  EXAMPLE: |
+    public record Orders(List<Order> values) {
+        public Orders {
+            values = List.copyOf(values);
+        }
+
+        public Orders filterByStatus(OrderStatus status) {
+            return new Orders(
+                    values.stream()
+                          .filter(order -> order.getStatus() == status)
+                          .toList());
+        }
+
+        public int count() {
+            return values.size();
+        }
+    }
 
 CHAINING_ALIGNMENT:
   RULE: 첫 호출의 "." 위치에 후속 체이닝 정렬
@@ -224,14 +271,36 @@ SERVICE:
     3. @Override public (인터페이스 구현)
     4. private (헬퍼 메서드)
 
+DOMAIN_MODEL:
+  ANNOTATIONS:
+    - @Getter
+    - @Builder
+    - @AllArgsConstructor
+  RULES:
+    - 도메인 로직(검증, 상태 변경, 판단)은 내부 메서드로 캡슐화
+    - @Setter 사용 금지. 상태 변경은 의미 있는 메서드로 표현
+    - List를 반복 사용하면 일급 객체(복수형 클래스)로 감싸기
+  EXAMPLE: |
+    @Getter @Builder @AllArgsConstructor
+    public class Order {
+        private final String id;
+        private final OrderStatus status;
+
+        public boolean isCancelable() {
+            return this.status == OrderStatus.RECEIVED;
+        }
+    }
+
 ENTITY:
   ANNOTATIONS:
     - @Getter
     - @Document("{collection_name}")  // MongoDB
+    - @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    - @AllArgsConstructor
   RULES:
     - 클래스명은 Entity 접미사 (OrderEntity ✅, OrderDocument ❌)
     - @Setter 사용 금지
-    - 생성자 또는 Builder로 객체 생성
+    - @AllArgsConstructor로 객체 생성, Spring Data는 protected 기본 생성자 사용
     - @Id, @Indexed 등 필요한 매핑만 사용
 
 KAFKA_CONSUMER:
@@ -335,7 +404,10 @@ AUTO_ALLOWED:
 | 로깅 | @Slf4j |
 | Getter | @Getter 사용 가능 |
 | Setter | ❌ 절대 사용 금지 |
-| Record | 가능한 곳에 무조건 사용 |
+| Record | 가능한 곳에 적극 사용 |
+| 도메인 모델 | @Getter + @Builder + @AllArgsConstructor |
+| 일급 객체 | List → 복수형 클래스로 감싸고 로직 캡슐화 |
+| 캡슐화 | 도메인 로직은 도메인 객체 내부에 위치 |
 | Entity 클래스 | Entity 접미사 (Document ❌) |
 | Repository | SpringData 수식어 금지 |
 | 변수명 | 클래스명 따라감 |
