@@ -1,30 +1,34 @@
 ---
 name: develop
 description: |
-  OMS-CORE 개발 가이드 및 코드 컨벤션 적용.
+  OMS MSA 공통 개발 가이드 및 코드 컨벤션 적용.
   사용자가 "개발", "코드 작성", "API 추가", "기능 개발", "코드 리뷰",
   "컨벤션", "스타일 가이드", "테스트", "빌드" 등을 말할 때 사용.
+  이 스킬은 OMS 전체 서비스의 공통 컨벤션을 정의한다.
+  서비스별 오버라이드는 각 서비스의 development-guide.md를 참조한다.
 allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
-# OMS-CORE Develop Skill
+# OMS MSA Develop Skill
+
+> 이 스킬은 OMS 전체 서비스의 **공통 컨벤션**을 정의한다.
+> 서비스별 차이(웹 프레임워크 등)는 각 서비스의 `development-guide.md`에서 오버라이드한다.
 
 ## METADATA
 
 ```dsl
 PROJECT:
-  NAME: oms-core
+  NAME: oms-msa
   LANGUAGE: Java 21
   FRAMEWORK: Spring Boot 4.0.3
-  WEB: Spring MVC (Tomcat)
   DATABASE: MongoDB
   MESSAGING: Apache Kafka
   BUILD: Gradle 9.3.1
   FORMAT: Spotless
 
-PORTS:
-  oms-core: 8081
-  oms-plan: 8080
+SERVICES:
+  oms-core: 8081   # 주문 엔진 (Single Source of Truth)
+  oms-plan: 8080   # 외부 API 게이트웨이
 
 PROFILES: [local, dev, stg, perf, prod]
 ```
@@ -80,7 +84,7 @@ NAMING:
   CLASS: PascalCase (OrderService, OutboundOrder)
   METHOD: camelCase (findByOrderCode, createOutbound)
   CONSTANT: UPPER_SNAKE (MAX_RETRY_COUNT)
-  PACKAGE: lowercase (co.oms.core.domain)
+  PACKAGE: lowercase (co.oms.{service}.domain)
   DTO: 접미사 사용 (OrderCreateRequest, OrderResponse)
   ENTITY: Entity 접미사 사용 (Document 사용 금지) → OrderEntity ✅, OrderDocument ❌
   REPOSITORY: SpringData 수식어 사용 금지 → OrderRepository ✅, SpringDataOrderRepository ❌
