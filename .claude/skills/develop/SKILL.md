@@ -172,15 +172,17 @@ FIRST_CLASS_COLLECTION:
   RULE: List를 반복 사용하면 일급 객체로 감싸고 관련 로직을 내부에 캡슐화
   NAMING: 도메인 모델의 복수형 (Order → Orders, OrderItem → OrderItems)
   RULES:
-    - compact constructor에서 null-safe 방어 + 불변 복사 필수
-    - null → 빈 리스트로 변환 (NPE 방지 최우선)
+    - compact constructor에서 null → List.of() 정규화 (NPE 방지 최우선)
+    - 불필요한 방어적 복사(List.copyOf) 금지. 코드 흐름상 불변 리스트만 유입
     - 컬렉션을 직접 노출하지 않는다
     - 필터링, 집계, 검증 로직은 일급 객체 내부에 위치
     - record로 선언 가능 (불변 보장)
   EXAMPLE: |
     public record Orders(List<Order> values) {
         public Orders {
-            values = (values != null) ? List.copyOf(values) : List.of();
+            if (values == null) {
+                values = List.of();
+            }
         }
 
         public Orders filterByStatus(OrderStatus status) {
@@ -549,8 +551,12 @@ STRUCTURE: |
       ├── in/kafka/                # Kafka Consumer 통합 테스트
       └── out/persistence/         # Repository 통합 테스트
 
+PROHIBITED:
+  - ❌ 사용자가 테스트 작성을 요청하지 않았으면 테스트 코드 작성 금지
+  - ❌ 소스 코드 수정 요청에 테스트 코드를 자동으로 추가 금지
+
 RULES:
-  - 새 기능 추가 시 테스트 코드 작성 필수
+  - 테스트 작성 요청 시: 아래 컨벤션을 따른다
   - 단위 테스트: Mockito로 Port.out 모킹 (또는 Fake 사용)
   - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded Kafka, Flapdoodle MongoDB)
   - @Nested + @DisplayName으로 기능별 그룹핑 필수
@@ -597,7 +603,12 @@ AUTO_ALLOWED:
 ## AI_CONTEXT_SYNC
 
 ```dsl
-RULE: PR 생성 시, 코드 변경에 따라 해당 서비스의 .claude/ai-context/ 파일을 함께 업데이트
+PROHIBITED:
+  - ❌ 사용자가 PR을 요청하지 않았으면 동기화 수행 금지
+  - ❌ 소스 코드 수정 시 context 파일 자동 동기화 금지. 사용자가 명시적으로 요청해야 수행
+  - ❌ 컨벤션/SKILL.md 파일을 소스 수정과 함께 자동 수정 금지
+
+RULE: 사용자가 PR을 요청할 때, 코드 변경에 따라 해당 서비스의 .claude/ai-context/ 파일을 함께 업데이트
 
 SYNC_MAPPING:
   | 코드 변경 | 업데이트 대상 | 업데이트 내용 |

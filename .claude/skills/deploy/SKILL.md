@@ -11,6 +11,11 @@ allowed-tools: Read, Edit, Bash, Grep, Glob
 
 > 배포 요청 시 반드시 해당 MSA 프로젝트의 CLAUDE.md를 먼저 읽고 진행한다.
 
+## PROHIBITED
+
+- ❌ 사용자가 "배포"를 명시하지 않으면 배포 절차 실행 금지
+- ❌ 각 단계를 사용자 확인 없이 자동 연속 실행 금지. 단계별로 확인 후 진행
+
 ## 배포 준비 6단계
 
 | 단계 | 작업 | 설명 |
@@ -18,7 +23,7 @@ allowed-tools: Read, Edit, Bash, Grep, Glob
 | **1** | 현재 버전 및 변경 내용 확인 | `ServerPropertiesController.java`에서 현재 버전 확인, 이전 태그 이후 변경 내용 분석 |
 | **2** | 배포 제목 작성 | 변경 내용을 분석하여 배포 제목을 AI가 직접 작성 |
 | **3** | 버전 업데이트 | `ServerPropertiesController.java`의 버전을 +1 증가 |
-| **4** | master 브랜치에 커밋 & push | 버전 변경 사항을 커밋하고 push |
+| **4** | main 브랜치에 커밋 & push | 버전 변경 사항을 커밋하고 push (배포 전용 예외) |
 | **5** | 태그 생성 & push | 새 버전으로 Git 태그 생성 및 push |
 | **6** | 운영배포 요청서 작성 | oms-tools 스크립트로 Jira 서비스데스크 폼 자동 입력 |
 
@@ -37,10 +42,10 @@ git log v{현재버전}..HEAD --oneline
 # 3. 버전 업데이트 (Edit 도구 사용)
 # ServerPropertiesController.java에서 버전 문자열 수정
 
-# 4. 커밋 & push
+# 4. 커밋 & push (사용자 확인 후 실행)
 git add src/main/java/co/oms/{서비스}/common/ServerPropertiesController.java
 git commit -m "v{새버전}"
-git push origin main
+git push origin main  # 배포 전용 예외: main push 허용
 
 # 5. 태그 생성 & push
 git tag v{새버전}
