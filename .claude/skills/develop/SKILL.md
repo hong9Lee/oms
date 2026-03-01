@@ -469,20 +469,106 @@ NESTED_STRUCTURE:
         }
     }
 
+FIXTURE_FACTORY:
+  RULE: 테스트 데이터 생성은 Fixture 팩토리 클래스로 중앙화
+  LOCATION: src/test/java/co/oms/{service}/fixture/
+  NAMING: {Domain}Fixture (OrderFixture, SaveOrderCommandFixture)
+  RULES:
+    - static 메서드로 테스트 객체 생성
+    - createDefault() + 파라미터 커스텀 메서드 제공
+    - 2개 이상 테스트 클래스에서 공유되는 생성 로직은 Fixture로 추출
+    - 단일 테스트 클래스에서만 사용되면 private 메서드 유지 가능
+  EXAMPLE: |
+    public class OrderFixture {
+        public static Order createDefault() {
+            return Order.builder()
+                        .clientOrderCode("C-TEST-001")
+                        .customerId(1L)
+                        .deliveryPolicy(DeliveryPolicy.DAWN)
+                        .orderDate(LocalDateTime.of(2026, 2, 28, 10, 0))
+                        .status(OrderStatus.RECEIVED)
+                        .items(new OrderItems(List.of()))
+                        .build();
+        }
+
+        public static Order createWithCode(String clientOrderCode) {
+            return Order.builder()
+                        .clientOrderCode(clientOrderCode)
+                        .customerId(1L)
+                        .deliveryPolicy(DeliveryPolicy.DAWN)
+                        .orderDate(LocalDateTime.of(2026, 2, 28, 10, 0))
+                        .status(OrderStatus.RECEIVED)
+                        .items(new OrderItems(List.of()))
+                        .build();
+        }
+    }
+
+FAKE:
+  RULE: Port의 테스트용 Fake 구현체. Mockito 대신 상태 기반 테스트에 사용
+  LOCATION: src/test/java/co/oms/{service}/fake/
+  NAMING: Fake{PortName} (FakeOrderPersistencePort)
+  WHEN_TO_USE:
+    - Mockito given/verify 체인이 복잡해질 때
+    - 상태 기반 검증이 필요할 때 (저장 건수, 내부 상태 확인)
+    - 여러 테스트에서 동일한 Port 스텁이 반복될 때
+  EXAMPLE: |
+    public class FakeOrderPersistencePort implements OrderPersistencePort {
+        private final List<Order> store = new ArrayList<>();
+
+        @Override
+        public Orders saveAll(Orders orders) {
+            store.addAll(orders.values());
+            return orders;
+        }
+
+        public int savedCount() {
+            return store.size();
+        }
+    }
+
+SECTION_COMMENTS:
+  UNIT_TEST: "// given, // when, // then 주석으로 3단계 구분"
+  INTEGRATION_TEST: "// 1. 설명, // 2. 설명 순차 주석 사용"
+  EXAMPLE_UNIT: |
+    @Test
+    void 정상요청이면_일괄저장된다() {
+        // given
+        SaveOrderCommand command = SaveOrderCommandFixture.createDefault();
+
+        // when
+        saveOrderService.saveOrders(List.of(command));
+
+        // then
+        verify(orderPersistencePort, times(1)).saveAll(any());
+    }
+  EXAMPLE_INTEGRATION: |
+    @Test
+    void 카프카메시지수신_주문저장성공() {
+        // 1. 파티션 할당 대기
+        ...
+        // 2. 메시지 발행
+        ...
+        // 3. 저장 확인
+        ...
+    }
+
 STRUCTURE: |
   src/test/java/co/oms/{service}/
-  ├── domain/model/              # 단위 테스트 (엔티티, VO)
-  ├── application/service/       # 유스케이스 테스트 (Port.out 모킹)
+  ├── fixture/                     # 테스트 픽스처 팩토리
+  ├── fake/                        # Port Fake 구현체
+  ├── domain/model/                # 단위 테스트 (엔티티, VO)
+  ├── application/service/         # 유스케이스 테스트 (Port.out 모킹)
   └── adapter/
-      ├── in/web/                # API 통합 테스트 (MockMvc)
-      ├── in/kafka/              # Kafka Consumer 통합 테스트
-      └── out/persistence/       # Repository 통합 테스트
+      ├── in/web/                  # API 통합 테스트 (MockMvc)
+      ├── in/kafka/                # Kafka Consumer 통합 테스트
+      └── out/persistence/         # Repository 통합 테스트
 
 RULES:
   - 새 기능 추가 시 테스트 코드 작성 필수
-  - 단위 테스트: Mockito로 Port.out 모킹
+  - 단위 테스트: Mockito로 Port.out 모킹 (또는 Fake 사용)
   - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded Kafka, Flapdoodle MongoDB)
   - @Nested + @DisplayName으로 기능별 그룹핑 필수
+  - 공유 테스트 데이터는 Fixture 팩토리로 중앙화
 ```
 
 ---
@@ -551,4 +637,7 @@ AUTO_ALLOWED:
 | 캡슐화 | 컬렉션 로직은 일급 객체 내부에 위치 |
 | Tell Don't Ask | 상태를 꺼내서 판단하지 말고 객체에게 요청 |
 | 테스트 구조 | @Nested + @DisplayName으로 기능별 그룹핑 |
+| 테스트 데이터 | Fixture 팩토리로 중앙화 (fixture/ 패키지) |
+| 테스트 Fake | Port Fake 구현체 (fake/ 패키지) |
+| 테스트 주석 | 단위: given/when/then, 통합: // 1. // 2. 순차 |
 ```
