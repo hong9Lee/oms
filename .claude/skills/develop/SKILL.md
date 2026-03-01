@@ -418,7 +418,7 @@ MONGODB:
   EXAMPLE: |
     @Override
     @Transactional
-    public void consumeAndSave(List<OrderMessage> messages) {
+    public void saveOrders(List<SaveOrderCommand> commands) {
         // 일괄 조회 → 중복 필터 → 일괄 저장 (전체가 하나의 트랜잭션)
     }
 
@@ -533,7 +533,7 @@ AUTO_ALLOWED:
 | Record | 가능한 곳에 적극 사용 |
 | 도메인 모델 | @Getter + @Builder + @AllArgsConstructor |
 | 일급 객체 | List → 복수형 클래스로 감싸고 로직 캡슐화 |
-| 캡슐화 | 도메인 로직은 도메인 객체 내부에 위치 |
+| 도메인 캡슐화 | 도메인 로직은 도메인 객체 내부, 컬렉션 로직은 일급 객체 내부 |
 | Entity 클래스 | @Getter + @Builder + @NoArgsConstructor(PROTECTED) + @AllArgsConstructor |
 | Spring Data Repository | SpringData 수식어 금지, OrderEntityRepository |
 | Out Port | 도메인 중심 + 역할 접미사: OrderPersistencePort |
@@ -548,7 +548,6 @@ AUTO_ALLOWED:
 | MapStruct | 모델 변환은 MapStruct, 수동 매핑 금지 |
 | 트랜잭션 | 다건 저장/변경은 @Transactional |
 | 일괄 처리 | N회 개별 호출 금지, 일괄 조회/저장 사용 |
-| 캡슐화 | 컬렉션 로직은 일급 객체 내부에 위치 |
 | Tell Don't Ask | 상태를 꺼내서 판단하지 말고 객체에게 요청 |
 | 테스트 구조 | @Nested + @DisplayName으로 기능별 그룹핑 |
 ```
