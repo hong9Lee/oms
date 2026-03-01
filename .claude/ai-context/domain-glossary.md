@@ -42,13 +42,29 @@
 | shipOrderKey | 출하문서번호 (WMS) | "SHK-001" |
 | invoiceNumber | 운송장번호 | "123456789012" |
 
-### 주문 상태 (OutboundStatus)
+### OrderStatus (주문 상태)
+
+| 값 | 설명 |
+|----|------|
+| RECEIVED | 주문 접수 완료 |
+| PROCESSING | 처리 중 |
+| COMPLETED | 완료 |
+| CANCELED | 취소됨 |
+
+### OutboundStatus (출고 상태)
 
 ```
 READY → PRODUCING → COMPLETED
   ↓
 CANCELED
 ```
+
+| 값 | 설명 |
+|----|------|
+| READY | 출고 준비 |
+| PRODUCING | 생산 중 (피킹/패킹) |
+| COMPLETED | 출고 완료 |
+| CANCELED | 취소됨 |
 
 ---
 

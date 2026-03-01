@@ -1,8 +1,9 @@
 ---
 name: test-guide
 description: |
-  OMS 테스트 코드 컨벤션: 네이밍, Fixture Factory, Fake, @Nested 구조.
-  사용자가 "테스트", "테스트 코드", "단위 테스트", "통합 테스트" 등을 말할 때 사용.
+  테스트 코드를 작성할 때 OMS 테스트 구조와 컨벤션을 적용한다.
+  한글 메서드명, @Nested 구조, Fixture Factory, Fake 패턴, given/when/then 구분을 다룬다.
+  코드 컨벤션은 /convention, 아키텍처는 /develop 스킬을 참조.
 allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
