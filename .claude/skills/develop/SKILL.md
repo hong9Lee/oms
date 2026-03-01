@@ -172,15 +172,15 @@ FIRST_CLASS_COLLECTION:
   RULE: List를 반복 사용하면 일급 객체로 감싸고 관련 로직을 내부에 캡슐화
   NAMING: 도메인 모델의 복수형 (Order → Orders, OrderItem → OrderItems)
   RULES:
-    - compact constructor에서 Objects.requireNonNull + List.copyOf 필수
+    - compact constructor에서 null-safe 방어 + 불변 복사 필수
+    - null → 빈 리스트로 변환 (NPE 방지 최우선)
     - 컬렉션을 직접 노출하지 않는다
     - 필터링, 집계, 검증 로직은 일급 객체 내부에 위치
     - record로 선언 가능 (불변 보장)
   EXAMPLE: |
     public record Orders(List<Order> values) {
         public Orders {
-            Objects.requireNonNull(values, "values must not be null");
-            values = List.copyOf(values);
+            values = (values != null) ? List.copyOf(values) : List.of();
         }
 
         public Orders filterByStatus(OrderStatus status) {
