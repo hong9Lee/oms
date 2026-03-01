@@ -133,8 +133,8 @@ GENERAL:
   OBJECT_CREATION: record가 아닌 도메인 모델은 @Getter + @Builder + @AllArgsConstructor
 
 CONFIG_VALUES:
+  - ❌ 토픽명, groupId 등 설정값을 코드에 하드코딩 금지
   RULE: 설정값은 application.yml에 작성하고 @Value로 주입
-  HARDCODE: ❌ 토픽명, groupId 등 설정값을 코드에 하드코딩 금지
   EXAMPLE_GOOD: |
     @Value("${kafka.topics.order-1p}")
     private String order1pTopic;
@@ -166,36 +166,20 @@ RECORD_USAGE:
     - 상태 변경이 필요한 도메인 모델
 
 DOMAIN_MODEL:
-  CREATION: @Getter + @Builder + @AllArgsConstructor
-  ENCAPSULATION:
-    - 도메인 로직은 도메인 객체 내부에 캡슐화한다
-    - 외부에서 상태를 꺼내서 조작하지 않는다 (Tell, Don't Ask)
-    - 상태 변경은 의미 있는 메서드로 표현한다
-  EXAMPLE: |
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public class Order {
-        private final String id;
-        private final OrderStatus status;
-        private final List<OrderItem> items;
-
-        /** 취소 가능 여부 판단 */
-        public boolean isCancelable() {
-            return this.status == OrderStatus.RECEIVED;
-        }
-    }
+  → CLASS_STRUCTURE.DOMAIN_MODEL 참조 (SSOT)
 
 FIRST_CLASS_COLLECTION:
   RULE: List를 반복 사용하면 일급 객체로 감싸고 관련 로직을 내부에 캡슐화
   NAMING: 도메인 모델의 복수형 (Order → Orders, OrderItem → OrderItems)
   RULES:
+    - compact constructor에서 Objects.requireNonNull + List.copyOf 필수
     - 컬렉션을 직접 노출하지 않는다
     - 필터링, 집계, 검증 로직은 일급 객체 내부에 위치
     - record로 선언 가능 (불변 보장)
   EXAMPLE: |
     public record Orders(List<Order> values) {
         public Orders {
+            Objects.requireNonNull(values, "values must not be null");
             values = List.copyOf(values);
         }
 
@@ -331,8 +315,9 @@ DOMAIN_MODEL:
     - @Builder
     - @AllArgsConstructor
   RULES:
+    - ❌ @Setter 사용 금지. 상태 변경은 의미 있는 메서드로 표현
+    - ❌ 외부에서 상태를 꺼내서 조작 금지 (Tell, Don't Ask)
     - 도메인 로직(검증, 상태 변경, 판단)은 내부 메서드로 캡슐화
-    - @Setter 사용 금지. 상태 변경은 의미 있는 메서드로 표현
     - List를 반복 사용하면 일급 객체(복수형 클래스)로 감싸기
   EXAMPLE: |
     @Getter @Builder @AllArgsConstructor
@@ -340,6 +325,7 @@ DOMAIN_MODEL:
         private final String id;
         private final OrderStatus status;
 
+        /** 취소 가능 여부 판단 */
         public boolean isCancelable() {
             return this.status == OrderStatus.RECEIVED;
         }
@@ -365,10 +351,10 @@ KAFKA_CONSUMER:
     - @Component
     - @RequiredArgsConstructor
   RULES:
+    - ❌ 컨슈머에서 비즈니스 로직/저장 로직 절대 수행 금지
+    - ❌ 도메인 객체 직접 생성 금지. Command까지만 변환
     - 토픽/groupId 등 설정값은 application.yml에서 @Value로 주입
-    - 컨슈머에서 비즈니스 로직/저장 로직 절대 수행 금지
     - 어댑터 DTO → Command 변환 후 UseCase에 위임 (변환은 어댑터 책임)
-    - 도메인 객체 직접 생성 금지. Command까지만 변환
     - 트랜잭션과 연관된 모든 로직은 Service 계층에서 처리
   EXAMPLE_GOOD: |
     public void consume(List<ConsumerRecord<String, OrderMessage>> records) {
@@ -586,8 +572,16 @@ BRANCH:
     - git pull origin main
     - git checkout -b {type}/{description}
 
+TRIGGER_KEYWORDS:
+  | 작업 | 트리거 키워드 | 수행 범위 |
+  | 커밋 | "커밋" | git add + git commit |
+  | push | "push", "푸쉬" | git add + git commit + git push |
+  | PR | "PR" | gh pr create |
+  | 브랜치 + 작업 | "브랜치 따서 작업" | git checkout -b + 파일 수정까지만 |
+  | 배포 | "배포" | /deploy 스킬 참조 |
+
 MAIN_BRANCH_PROTECTION:
-  RULE: main에 직접 커밋/push 절대 금지. PR 머지도 Agent가 수행하지 않는다. (상세: CLAUDE.md 참조)
+  RULE: main에 직접 커밋/push 절대 금지. PR 머지도 Agent가 수행하지 않는다.
 
 CONFIRM_REQUIRED:
   - git commit (로컬 커밋)
@@ -598,6 +592,27 @@ AUTO_ALLOWED:
   - 로컬 브랜치 생성
   - 빌드 / 테스트
   - 코드 포맷팅
+```
+
+---
+
+## AI_CONTEXT_SYNC
+
+```dsl
+RULE: PR 생성 시, 코드 변경에 따라 해당 서비스의 .claude/ai-context/ 파일을 함께 업데이트
+
+SYNC_MAPPING:
+  | 코드 변경 | 업데이트 대상 | 업데이트 내용 |
+  | REST API 추가/변경/삭제 | api-spec.json | 엔드포인트, method, path, 요청/응답 구조 |
+  | Kafka Producer/Consumer 추가/변경/삭제 | kafka-spec.json | 토픽명, 이벤트 스키마 |
+  | 엔티티/VO/Enum 추가/변경/삭제 | data-model.md | 엔티티 필드, 관계, Enum 값 |
+  | 외부 시스템 연동 추가/변경 | external-integration.md | 연동 대상, 방식, 엔드포인트 |
+  | 빌드/의존성/패키지 구조 변경 | development-guide.md | 기술 스택, 패키지 경로 |
+
+NO_SYNC:
+  - domain-overview.md: 아키텍처 수준 변경이 아니면 수정 안함
+  - domain-glossary.md: 새 도메인 용어 추가 시에만 수정
+  - deploy-guide.md: 배포 절차 변경 시에만 수정
 ```
 
 ---
