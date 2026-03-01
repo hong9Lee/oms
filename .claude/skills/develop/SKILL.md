@@ -241,6 +241,36 @@ COMMENT_STYLE:
         // 2. 변환
         return this.transform(data);
     }
+
+MAPSTRUCT:
+  RULE: 모델 변환은 MapStruct를 사용한다. 수동 매핑 금지
+  COMPONENT_MODEL: spring
+  NAMING:
+    - Persistence 매퍼: {Domain}PersistenceMapper (Order → OrderPersistenceMapper)
+    - Message 매퍼: {Domain}MessageMapper (OrderMessage → OrderMessageMapper)
+  LOCATION:
+    - Persistence 매퍼: adapter/out/persistence/ 패키지
+    - Message 매퍼: application/service/ 패키지
+  RULES:
+    - Enum ↔ String 변환은 @Named default 메서드로 정의
+    - 일급 컬렉션 ↔ List 변환은 default 메서드로 정의
+    - @Mapping(target, ignore/expression/source)으로 필드 매핑
+  EXAMPLE: |
+    @Mapper(componentModel = "spring")
+    public interface OrderPersistenceMapper {
+        @Mapping(target = "status", source = "status", qualifiedByName = "orderStatusToString")
+        OrderEntity toEntity(Order order);
+
+        @Named("orderStatusToString")
+        default String orderStatusToString(OrderStatus status) {
+            return status != null ? status.name() : null;
+        }
+
+        default OrderItems toOrderItems(List<OrderItemEntity> entities) {
+            if (entities == null) { return new OrderItems(List.of()); }
+            return new OrderItems(entities.stream().map(this::toItemDomain).toList());
+        }
+    }
 ```
 
 ---
@@ -335,6 +365,70 @@ KAFKA_CONSUMER:
 
 ---
 
+## CLEAN_CODE
+
+```dsl
+BATCH_OVER_INDIVIDUAL:
+  RULE: 동일한 DB 호출을 N번 반복하지 않는다. 일괄 조회/저장으로 대체
+  EXAMPLE_GOOD: |
+    // 1회 일괄 조회 + 1회 일괄 저장 = 2회 DB 호출
+    Set<String> codes = orders.extractClientOrderCodes();
+    Orders existing = repository.findByClientOrderCodeIn(codes);
+    Orders newOrders = orders.excludeByClientOrderCodes(existing.extractClientOrderCodes());
+    repository.saveAll(newOrders);
+  EXAMPLE_BAD: |
+    // N회 개별 조회 + N회 개별 저장 = 2N회 DB 호출
+    orders.values().forEach(order -> {
+        if (repository.findByClientOrderCode(order.getCode()).isEmpty()) {
+            repository.save(order);
+        }
+    });
+
+TELL_DONT_ASK:
+  RULE: 객체의 상태를 꺼내서 외부에서 판단하지 않는다. 객체에게 행동을 요청한다
+  EXAMPLE_GOOD: "order.isCancelable()"
+  EXAMPLE_BAD: "order.getStatus() == OrderStatus.RECEIVED"
+
+ENCAPSULATE_COLLECTION_LOGIC:
+  RULE: 컬렉션 필터링, 추출, 집계 로직은 일급 객체 내부에 위치
+  EXAMPLE_GOOD: "orders.excludeByClientOrderCodes(existingCodes)"
+  EXAMPLE_BAD: "orders.values().stream().filter(o -> !codes.contains(o.getCode())).toList()"
+
+SINGLE_RESPONSIBILITY:
+  RULE: 메서드는 하나의 역할만 수행. 변환, 검증, 저장을 한 메서드에 혼합하지 않는다
+
+EARLY_RETURN:
+  RULE: 조건 불충족 시 빠르게 반환. 깊은 중첩(if-else 3단 이상) 금지
+```
+
+---
+
+## TRANSACTION
+
+```dsl
+MONGODB:
+  RULE: Service 계층의 다건 저장/변경에는 @Transactional 적용
+  CONFIG: MongoTransactionManager 빈을 config/MongoConfig에 등록
+  REQUIRES: MongoDB Replica Set (standalone은 트랜잭션 미지원)
+  ANNOTATION_LOCATION: Service의 @Override public 메서드
+  EXAMPLE: |
+    @Override
+    @Transactional
+    public void consumeAndSave(List<OrderMessage> messages) {
+        // 일괄 조회 → 중복 필터 → 일괄 저장 (전체가 하나의 트랜잭션)
+    }
+
+TEST_TRANSACTION:
+  RULE: Embedded MongoDB는 트랜잭션 미지원. 테스트용 no-op TransactionManager 사용
+  PATTERN: |
+    // src/test/java/.../config/TestMongoConfig.java
+    @TestConfiguration → no-op PlatformTransactionManager 빈 등록
+    // 본 MongoConfig에 @ConditionalOnMissingBean(PlatformTransactionManager.class) 적용
+    // 통합 테스트에 @Import(TestMongoConfig.class) 추가
+```
+
+---
+
 ## TEST_CONVENTION
 
 ```dsl
@@ -416,4 +510,9 @@ AUTO_ALLOWED:
 | 설정값 | application.yml + @Value |
 | 컨슈머 | UseCase 위임만, 비즈니스 로직 금지 |
 | 주석 | 논리 단위마다 // 1., // 2. |
+| MapStruct | 모델 변환은 MapStruct, 수동 매핑 금지 |
+| 트랜잭션 | 다건 저장/변경은 @Transactional |
+| 일괄 처리 | N회 개별 호출 금지, 일괄 조회/저장 사용 |
+| 캡슐화 | 컬렉션 로직은 일급 객체 내부에 위치 |
+| Tell Don't Ask | 상태를 꺼내서 판단하지 말고 객체에게 요청 |
 ```
