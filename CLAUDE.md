@@ -50,13 +50,7 @@ OMS (Order Management System) MSA. 주문 이행 라이프사이클을 처리하
 `git commit`, `git push`, `gh pr create`는 **암묵적으로 포함되지 않는다**.
 git 작업은 **해당 메시지에서** 별도로 명시해야 수행한다. 이전 메시지의 요청은 이후에 자동 적용되지 않는다.
 
-| 작업 | 트리거 키워드 | 수행 범위 |
-|------|-------------|----------|
-| 커밋 | "커밋" | `git add` + `git commit` |
-| push | "push", "푸쉬" | `git add` + `git commit` + `git push` |
-| PR | "PR" | `gh pr create` |
-| 브랜치 + 작업 | "브랜치 따서 작업" | `git checkout -b` + 파일 수정까지만 |
-| 배포 | "배포" | `/deploy` 스킬 참조 |
+> 트리거 키워드와 상세 규칙은 `/develop` 스킬 GIT_RULES 참조
 
 ---
 
