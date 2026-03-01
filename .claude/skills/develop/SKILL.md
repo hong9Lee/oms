@@ -168,7 +168,7 @@ AUTO_SYNC (PR 요청 시 자동 수행):
 
 MANUAL_ONLY (사용자 요청 시에만 수행):
   - SKILL.md (develop/convention/test-guide/deploy 스킬): 컨벤션/규칙 변경
-  - CLAUDE.md (루트/서비스): Agent 행동 규칙 변경
+  - CLAUDE.md (oms 프로젝트/서비스): Agent 행동 규칙 변경
   - role README: 역할 가이드 변경
   - deploy-guide.md: 배포 절차
 ```
