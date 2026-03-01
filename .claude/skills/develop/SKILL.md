@@ -562,17 +562,17 @@ RULES:
 ## GIT_RULES
 
 ```dsl
-BRANCH:
-  BASE: main
-  FORMAT: {type}/{description}
-  TYPES: [feature, fix, chore, refactor]
-  EXAMPLE: feature/kafka-mongodb-order-consumer
-  COMMANDS:
-    - git checkout main
-    - git pull origin main
-    - git checkout -b {type}/{description}
+PROHIBITED:
+  - ❌ 사용자가 해당 메시지에서 "커밋"이라고 말하지 않으면 git commit 실행 금지
+  - ❌ 사용자가 해당 메시지에서 "push"/"푸쉬"라고 말하지 않으면 git push 실행 금지
+  - ❌ 사용자가 해당 메시지에서 "PR"이라고 말하지 않으면 gh pr create 실행 금지
+  - ❌ gh pr merge 절대 금지 (어떤 상황에서도 Agent가 수행하지 않는다)
+  - ❌ main 브랜치에 직접 커밋/push 절대 금지
+  - ❌ 코드 방향 동의("이걸로 가자", "좋아" 등)를 git 작업 승인으로 해석 금지
+  - ❌ 이전 메시지의 git 작업 요청을 이후 메시지에서 자동 적용 금지
 
 TRIGGER_KEYWORDS:
+  RULE: 아래 키워드가 해당 메시지에 명시적으로 있을 때만 수행
   | 작업 | 트리거 키워드 | 수행 범위 |
   | 커밋 | "커밋" | git add + git commit |
   | push | "push", "푸쉬" | git add + git commit + git push |
@@ -580,13 +580,11 @@ TRIGGER_KEYWORDS:
   | 브랜치 + 작업 | "브랜치 따서 작업" | git checkout -b + 파일 수정까지만 |
   | 배포 | "배포" | /deploy 스킬 참조 |
 
-MAIN_BRANCH_PROTECTION:
-  RULE: main에 직접 커밋/push 절대 금지. PR 머지도 Agent가 수행하지 않는다.
-
-CONFIRM_REQUIRED:
-  - git commit (로컬 커밋)
-  - git push (원격 반영)
-  - PR 생성
+BRANCH:
+  BASE: main
+  FORMAT: {type}/{description}
+  TYPES: [feature, fix, chore, refactor]
+  EXAMPLE: feature/kafka-mongodb-order-consumer
 
 AUTO_ALLOWED:
   - 로컬 브랜치 생성
