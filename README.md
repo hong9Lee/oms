@@ -117,7 +117,15 @@ git clone https://github.com/hong9Lee/oms-plan.git
 claude   # oms/ 디렉토리에서 실행
 ```
 
-첫 메시지를 입력하면 역할 선택지가 표시된다. 역할을 선택하면 해당 컨텍스트가 자동 로드된다.
+아무 메시지나 입력하면 역할 선택지가 표시된다. 원하는 역할을 선택하면 해당 컨텍스트가 자동 로드된다.
+
+한 번에 특정 역할로 바로 진입할 수도 있다:
+
+```
+backend core 역할로 실행해줘    # → Backend 역할 + oms-core 서버로 즉시 진입
+backend plan 역할로 실행해줘    # → Backend 역할 + oms-plan 서버로 즉시 진입
+tpm 역할로 실행해줘             # → TPM 역할로 즉시 진입
+```
 
 ---
 
