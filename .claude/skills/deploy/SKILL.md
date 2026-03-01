@@ -52,7 +52,7 @@ git tag v{새버전}
 git push origin v{새버전}
 
 # 6. 운영배포 요청서 작성
-cd /Users/hglee/Desktop/oms/oms-tools
+cd {리포지토리루트}/oms-tools
 source venv/bin/activate
 python3 auto-fill-from-pr.py {PR_URL} -d v{새버전} -r v{이전버전} -t "{배포제목}"
 ```
