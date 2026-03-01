@@ -77,7 +77,7 @@ PACKAGE_TEMPLATE: |
   │   │   ├── web/             # REST Controller + Request/Response DTO
   │   │   └── kafka/           # Kafka Consumer
   │   └── out/
-  │       ├── persistence/     # DB Repository 구현체
+  │       ├── persistence/     # Port 구현체 (Adapter + Mapper)
   │       ├── kafka/           # Kafka Producer
   │       └── client/          # 외부 API 클라이언트 (RestClient)
   ├── application/
@@ -88,14 +88,17 @@ PACKAGE_TEMPLATE: |
   ├── domain/
   │   ├── model/               # 엔티티, VO, Aggregate Root
   │   └── enums/               # Enum 정의
+  ├── infrastructure/
+  │   └── persistence/         # Entity, Spring Data Repository
   ├── config/                  # 설정 클래스
   └── common/                  # 공통 유틸 (예외, 응답 포맷, 헬스체크)
 
 DEPENDENCY_RULES:
   | 패키지 | 의존 가능 | 의존 불가 |
-  | domain | 없음 (순수) | application, adapter |
-  | application | domain | adapter |
-  | adapter | application, domain | 다른 adapter |
+  | domain | 없음 (순수) | application, adapter, infrastructure |
+  | application | domain | adapter, infrastructure |
+  | adapter | application, domain, infrastructure | 다른 adapter |
+  | infrastructure | 없음 (프레임워크 전용) | domain, application, adapter |
 ```
 
 ---
@@ -123,14 +126,17 @@ CONFIG_VALUES:
     @KafkaListener(topics = {"order.1p"})  // 하드코딩 금지
 
 NAMING:
-  CLASS: PascalCase (OrderService, OutboundOrder)
+  CLASS: PascalCase (SaveOrderService, OutboundOrder)
   METHOD: camelCase (findByOrderCode, createOutbound)
   CONSTANT: UPPER_SNAKE (MAX_RETRY_COUNT)
   PACKAGE: lowercase (co.oms.{service}.domain)
   DTO: 접미사 사용 (OrderCreateRequest, OrderResponse)
   ENTITY: Entity 접미사 사용 (Document 사용 금지) → OrderEntity ✅, OrderDocument ❌
-  REPOSITORY: SpringData 수식어 사용 금지 → OrderRepository ✅, SpringDataOrderRepository ❌
-  VARIABLE: 클래스명을 따라감 → OrderRepository → orderRepository
+  SPRING_DATA_REPOSITORY: SpringData 수식어 사용 금지 → OrderEntityRepository ✅, SpringDataOrderRepository ❌
+  VARIABLE: 클래스명을 따라감 → OrderPersistencePort → orderPersistencePort
+  SERVICE: UseCase명과 일치 → SaveOrderUseCase → SaveOrderService ✅, OrderService ❌
+  OUT_PORT: 도메인 중심 + 역할 접미사 → OrderPersistencePort ✅, OrderRepository ❌
+  ADAPTER: Port 구현체 + Adapter 접미사 → OrderPersistenceAdapter ✅
 
 RECORD_USAGE:
   RULE: record를 사용할 수 있다면 무조건 사용
@@ -368,37 +374,18 @@ KAFKA_CONSUMER:
 ## CLEAN_CODE
 
 ```dsl
+PRINCIPLES: [SOLID, DRY, KISS, Early Return, Tell Don't Ask]
+  # 위 원칙들은 일반적인 클린 코드 원칙을 따른다. 아래는 프로젝트 고유 규칙만 명시.
+
 BATCH_OVER_INDIVIDUAL:
   RULE: 동일한 DB 호출을 N번 반복하지 않는다. 일괄 조회/저장으로 대체
-  EXAMPLE_GOOD: |
-    // 1회 일괄 조회 + 1회 일괄 저장 = 2회 DB 호출
-    Set<String> codes = orders.extractClientOrderCodes();
-    Orders existing = repository.findByClientOrderCodeIn(codes);
-    Orders newOrders = orders.excludeByClientOrderCodes(existing.extractClientOrderCodes());
-    repository.saveAll(newOrders);
-  EXAMPLE_BAD: |
-    // N회 개별 조회 + N회 개별 저장 = 2N회 DB 호출
-    orders.values().forEach(order -> {
-        if (repository.findByClientOrderCode(order.getCode()).isEmpty()) {
-            repository.save(order);
-        }
-    });
-
-TELL_DONT_ASK:
-  RULE: 객체의 상태를 꺼내서 외부에서 판단하지 않는다. 객체에게 행동을 요청한다
-  EXAMPLE_GOOD: "order.isCancelable()"
-  EXAMPLE_BAD: "order.getStatus() == OrderStatus.RECEIVED"
+  GOOD: "findByXxxIn(codes) + saveAll(orders)"
+  BAD: "forEach → findByXxx() + save()"
 
 ENCAPSULATE_COLLECTION_LOGIC:
   RULE: 컬렉션 필터링, 추출, 집계 로직은 일급 객체 내부에 위치
-  EXAMPLE_GOOD: "orders.excludeByClientOrderCodes(existingCodes)"
-  EXAMPLE_BAD: "orders.values().stream().filter(o -> !codes.contains(o.getCode())).toList()"
-
-SINGLE_RESPONSIBILITY:
-  RULE: 메서드는 하나의 역할만 수행. 변환, 검증, 저장을 한 메서드에 혼합하지 않는다
-
-EARLY_RETURN:
-  RULE: 조건 불충족 시 빠르게 반환. 깊은 중첩(if-else 3단 이상) 금지
+  GOOD: "orders.excludeByClientOrderCodes(existingCodes)"
+  BAD: "orders.values().stream().filter(...).toList()"
 ```
 
 ---
@@ -505,7 +492,11 @@ AUTO_ALLOWED:
 | 일급 객체 | List → 복수형 클래스로 감싸고 로직 캡슐화 |
 | 캡슐화 | 도메인 로직은 도메인 객체 내부에 위치 |
 | Entity 클래스 | @Getter + @Builder + @NoArgsConstructor(PROTECTED) + @AllArgsConstructor |
-| Repository | SpringData 수식어 금지 |
+| Spring Data Repository | SpringData 수식어 금지, OrderEntityRepository |
+| Out Port | 도메인 중심 + 역할 접미사: OrderPersistencePort |
+| Service | UseCase명과 일치: SaveOrderUseCase → SaveOrderService |
+| Adapter | Port 구현체 + Adapter 접미사: OrderPersistenceAdapter |
+| infrastructure | Entity, Spring Data Repository는 infrastructure 패키지 |
 | 변수명 | 클래스명 따라감 |
 | 설정값 | application.yml + @Value |
 | 컨슈머 | UseCase 위임만, 비즈니스 로직 금지 |
