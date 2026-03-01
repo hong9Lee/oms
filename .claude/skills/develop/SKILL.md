@@ -604,24 +604,25 @@ AUTO_ALLOWED:
 
 ```dsl
 PROHIBITED:
-  - ❌ 사용자가 PR을 요청하지 않았으면 동기화 수행 금지
-  - ❌ 소스 코드 수정 시 context 파일 자동 동기화 금지. 사용자가 명시적으로 요청해야 수행
-  - ❌ 컨벤션/SKILL.md 파일을 소스 수정과 함께 자동 수정 금지
+  - ❌ 컨벤션/규칙 파일(SKILL.md, CLAUDE.md, role README 등)을 사용자 요청 없이 수정 금지
+  - ❌ PR 미요청 시 어떤 동기화도 수행 금지
 
-RULE: 사용자가 PR을 요청할 때, 코드 변경에 따라 해당 서비스의 .claude/ai-context/ 파일을 함께 업데이트
-
-SYNC_MAPPING:
+AUTO_SYNC (PR 요청 시 자동 수행):
+  RULE: 사용자가 PR을 요청하면, 피쳐 변경에 해당하는 도메인 지식 파일을 자동으로 함께 업데이트
   | 코드 변경 | 업데이트 대상 | 업데이트 내용 |
   | REST API 추가/변경/삭제 | api-spec.json | 엔드포인트, method, path, 요청/응답 구조 |
   | Kafka Producer/Consumer 추가/변경/삭제 | kafka-spec.json | 토픽명, 이벤트 스키마 |
   | 엔티티/VO/Enum 추가/변경/삭제 | data-model.md | 엔티티 필드, 관계, Enum 값 |
   | 외부 시스템 연동 추가/변경 | external-integration.md | 연동 대상, 방식, 엔드포인트 |
-  | 빌드/의존성/패키지 구조 변경 | development-guide.md | 기술 스택, 패키지 경로 |
+  | 비즈니스 흐름 변경 | domain-overview.md | 서비스 역할, 주문 흐름, 상태 변경 |
+  | 도메인 용어 추가/변경 | domain-glossary.md | 새 용어, Enum 값, 엔티티명 |
+  | 기술 스택/빌드 변경 | development-guide.md | 라이브러리 추가, 빌드 설정 변경 |
 
-NO_SYNC:
-  - domain-overview.md: 아키텍처 수준 변경이 아니면 수정 안함
-  - domain-glossary.md: 새 도메인 용어 추가 시에만 수정
-  - deploy-guide.md: 배포 절차 변경 시에만 수정
+MANUAL_ONLY (사용자 요청 시에만 수행):
+  - SKILL.md (develop/deploy 스킬): 컨벤션/규칙 변경
+  - CLAUDE.md (루트/서비스): Agent 행동 규칙 변경
+  - role README: 역할 가이드 변경
+  - deploy-guide.md: 배포 절차
 ```
 
 ---

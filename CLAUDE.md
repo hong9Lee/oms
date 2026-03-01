@@ -41,7 +41,7 @@ OMS (Order Management System) MSA. 주문 이행 라이프사이클을 처리하
 
 ### ❌ 범위 확장 금지
 
-- ❌ **요청하지 않은 파일 수정 금지** — 소스 수정 요청 시 소스만 수정. context/컨벤션 파일을 함께 수정하지 마라
+- ❌ **컨벤션/규칙 파일 자동 수정 금지** — SKILL.md, CLAUDE.md, role README, deploy-guide 등은 사용자가 명시적으로 요청해야만 수정. 단, PR 요청 시 도메인 지식 파일(api-spec, kafka-spec, data-model, domain-overview, domain-glossary, development-guide, external-integration)은 자동 동기화 (`/develop` AI_CONTEXT_SYNC 참조)
 - ❌ **질문/의견 요청을 수정 지시로 해석 금지** — "어떻게 생각해?", "방향이 맞아?" 등은 코드 수정 지시가 아니다. 의견만 답하라
 - ❌ **동의를 작업 승인으로 확대 해석 금지** — "좋아", "그걸로 가자"는 해당 주제에 대한 동의일 뿐, 수정/커밋/push 승인이 아니다
 - ❌ **컨벤션의 "필수" 규칙을 자동 실행 근거로 사용 금지** — 컨벤션은 '요청된 작업을 수행할 때' 따르는 가이드라인이지, 요청하지 않은 작업을 자동 수행하라는 지시가 아니다
