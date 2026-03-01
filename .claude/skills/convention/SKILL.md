@@ -2,7 +2,7 @@
 name: convention
 description: |
   새 코드를 작성하거나 기존 코드를 리뷰할 때 OMS 코드 컨벤션을 적용한다.
-  네이밍 규칙, record 사용, MapStruct 매핑, 클래스 구조, 트랜잭션 설정을 다룬다.
+  네이밍 규칙, record 사용, MapStruct 매핑, 클래스 구조를 다룬다.
   아키텍처는 /develop, 테스트 컨벤션은 /test-guide 스킬을 참조.
 allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 ---
@@ -49,7 +49,7 @@ NAMING:
 RECORD_USAGE:
   RULE: record를 사용할 수 있다면 무조건 사용
   APPLICABLE: [Request/Response DTO, Kafka 메시지 DTO, Value Object, 불변 데이터 클래스]
-  NOT_APPLICABLE: [MongoDB Entity (Spring Data 매핑 필요), 상태 변경이 필요한 도메인 모델]
+  NOT_APPLICABLE: [Persistence Entity (ORM/ODM 매핑 필요), 상태 변경이 필요한 도메인 모델]
 
 DOMAIN_MODEL:
   → 아래 CLASS_STRUCTURE.DOMAIN_MODEL 참조 (SSOT)
@@ -142,11 +142,12 @@ DOMAIN_MODEL:
     - List 반복 사용 시 일급 객체(복수형 클래스)로 감싸기
 
 ENTITY:
-  ANNOTATIONS: [@Getter, @Builder, @Document("{collection}"), @NoArgsConstructor(PROTECTED), @AllArgsConstructor]
+  ANNOTATIONS: [@Getter, @Builder, @NoArgsConstructor(PROTECTED), @AllArgsConstructor, + 서비스별 persistence 어노테이션]
   RULES:
     - 클래스명은 Entity 접미사 (OrderEntity)
     - ❌ @Setter 금지
-    - @NoArgsConstructor(PROTECTED): Spring Data 리플렉션용, 외부 빈 객체 생성 차단
+    - @NoArgsConstructor(PROTECTED): 프레임워크 리플렉션용, 외부 빈 객체 생성 차단
+    - persistence 어노테이션(@Document, @Entity 등)은 서비스별 development-guide.md 참조
 
 KAFKA_CONSUMER:
   ANNOTATIONS: [@Slf4j, @Component, @RequiredArgsConstructor]
@@ -162,9 +163,7 @@ KAFKA_CONSUMER:
 ## TRANSACTION
 
 ```dsl
-MONGODB:
-  RULE: Service 계층의 다건 저장/변경에는 @Transactional 적용
-  CONFIG: MongoTransactionManager 빈을 config/MongoConfig에 등록
-  REQUIRES: MongoDB Replica Set (standalone은 트랜잭션 미지원)
-  ANNOTATION_LOCATION: Service의 @Override public 메서드
+RULE: Service 계층의 다건 저장/변경에는 @Transactional 적용
+ANNOTATION_LOCATION: Service의 @Override public 메서드
+DB_SPECIFIC: 트랜잭션 매니저 설정, 제약사항은 서비스별 development-guide.md 참조
 ```

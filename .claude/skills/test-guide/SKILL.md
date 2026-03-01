@@ -80,20 +80,8 @@ STRUCTURE: |
 
 RULES:
   - 단위 테스트: Mockito로 Port.out 모킹 (또는 Fake 사용)
-  - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded Kafka, Flapdoodle MongoDB)
+  - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded DB, Embedded Kafka 등 — 서비스별 development-guide.md 참조)
   - @Nested + @DisplayName으로 기능별 그룹핑 필수
   - 공유 테스트 데이터는 Fixture 팩토리로 중앙화
 ```
 
----
-
-## TEST_TRANSACTION
-
-```dsl
-RULE: Embedded MongoDB는 트랜잭션 미지원. 테스트용 no-op TransactionManager 사용
-PATTERN: |
-  // src/test/java/.../config/TestMongoConfig.java
-  @TestConfiguration → no-op PlatformTransactionManager 빈 등록
-  // MongoConfig에 @ConditionalOnMissingBean(PlatformTransactionManager.class) 적용
-  // 통합 테스트에 @Import(TestMongoConfig.class) 추가
-```
