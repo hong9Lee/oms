@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 OMS (Order Management System) MSA. 주문 이행 라이프사이클을 처리하는 2개의 마이크로서비스로 구성된다.
 
-> **용어 동의어:** "oms 프로젝트", "root", "루트", "클로드 프로젝트", "부모 프로젝트" → 모두 이 저장소(`/Users/hglee/Desktop/oms`)를 의미한다.
+> **용어 동의어:** "oms 프로젝트", "root", "루트", "클로드 프로젝트", "부모 프로젝트" → 모두 이 저장소(리포지토리 루트)를 의미한다.
 
 | 서비스 | 역할 |
 |--------|------|
