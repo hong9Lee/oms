@@ -438,11 +438,36 @@ TEST_TRANSACTION:
 ```dsl
 NAMING:
   LANGUAGE: 한글 메서드명 (시나리오 설명)
-  FORMAT: {기능}_{조건이면}_{결과}
+  FORMAT: {조건이면}_{결과}
   EXAMPLES:
-    - 주문생성_정상요청이면_READY상태로_생성된다
-    - 주문취소_이미완료된_주문이면_예외발생
-    - 배치주문저장_중복포함이면_중복제외하고_저장된다
+    - 정상요청이면_일괄저장된다
+    - 중복주문이면_저장하지않는다
+    - clientOrderCode로_조회가능
+
+NESTED_STRUCTURE:
+  RULE: 테스트 클래스 내부에 @Nested + @DisplayName으로 기능별 그룹핑
+  OUTER_CLASS: 테스트 대상 클래스 (어노테이션만, DisplayName 없음)
+  INNER_CLASS: 기능/메서드 단위 그룹 (@Nested + @DisplayName)
+  DISPLAY_NAME_FORMAT:
+    INNER_CLASS: "{기능} 함수는" (한글, 주어 형태)
+    METHOD: 시나리오 설명 (한글)
+  EXAMPLE: |
+    @ExtendWith(MockitoExtension.class)
+    class SaveOrderServiceTest {
+
+        @Nested
+        @DisplayName("주문 저장 함수는")
+        class SaveOrdersTest {
+
+            @Test
+            @DisplayName("정상 요청이면 일괄 저장된다")
+            void 정상요청이면_일괄저장된다() { ... }
+
+            @Test
+            @DisplayName("중복 주문이면 저장하지 않는다")
+            void 중복주문이면_저장하지않는다() { ... }
+        }
+    }
 
 STRUCTURE: |
   src/test/java/co/oms/{service}/
@@ -457,6 +482,7 @@ RULES:
   - 새 기능 추가 시 테스트 코드 작성 필수
   - 단위 테스트: Mockito로 Port.out 모킹
   - 통합 테스트: @SpringBootTest + 실제 인프라 (Embedded Kafka, Flapdoodle MongoDB)
+  - @Nested + @DisplayName으로 기능별 그룹핑 필수
 ```
 
 ---
@@ -524,4 +550,5 @@ AUTO_ALLOWED:
 | 일괄 처리 | N회 개별 호출 금지, 일괄 조회/저장 사용 |
 | 캡슐화 | 컬렉션 로직은 일급 객체 내부에 위치 |
 | Tell Don't Ask | 상태를 꺼내서 판단하지 말고 객체에게 요청 |
+| 테스트 구조 | @Nested + @DisplayName으로 기능별 그룹핑 |
 ```
