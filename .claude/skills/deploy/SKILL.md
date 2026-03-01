@@ -28,7 +28,7 @@ allowed-tools: Read, Edit, Bash, Grep, Glob
 
 ```bash
 # 1. 현재 버전 확인
-cat {서비스경로}/src/main/java/com/kurly/{서비스}/core/common/ServerPropertiesController.java | grep "return"
+cat {서비스경로}/src/main/java/co/oms/{서비스}/common/ServerPropertiesController.java | grep "return"
 
 # 2. 이전 태그 이후 변경 내용 확인
 cd {서비스경로}
@@ -38,16 +38,16 @@ git log v{현재버전}..HEAD --oneline
 # ServerPropertiesController.java에서 버전 문자열 수정
 
 # 4. 커밋 & push
-git add src/main/java/com/kurly/{서비스}/core/common/ServerPropertiesController.java
+git add src/main/java/co/oms/{서비스}/common/ServerPropertiesController.java
 git commit -m "v{새버전}"
-git push origin master
+git push origin main
 
 # 5. 태그 생성 & push
 git tag v{새버전}
 git push origin v{새버전}
 
 # 6. 운영배포 요청서 작성
-cd /Users/mk-mac-348/Desktop/oms/repo/oms-msa/oms-tools
+cd /Users/hglee/Desktop/oms/oms-tools
 source venv/bin/activate
 python3 auto-fill-from-pr.py {PR_URL} -d v{새버전} -r v{이전버전} -t "{배포제목}"
 ```
