@@ -1,4 +1,5 @@
 {
+  "autoMemoryEnabled": true,
   "hooks": {
     "PreToolUse": [
       {
@@ -16,6 +17,27 @@
           {
             "type": "command",
             "command": ".claude/hooks/protect-manual-only.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/auto-spotless.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-compact.sh"
           }
         ]
       }
