@@ -20,7 +20,6 @@ PROJECT:
   NAME: oms-msa
   LANGUAGE: Java 21
   FRAMEWORK: Spring Boot 4.0.3
-  DATABASE: MongoDB
   MESSAGING: Apache Kafka
   BUILD: Gradle 9.3.1
   FORMAT: Spotless
