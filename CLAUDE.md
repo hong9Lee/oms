@@ -67,5 +67,7 @@ OMS (Order Management System) MSA. 주문 이행 라이프사이클을 처리하
 | 서비스별 상세 | `{서비스}/CLAUDE.md` |
 | 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
 | PR 작성 | `.claude/ai-context/pr-template.md` |
-| 개발 컨벤션 | `/develop` 스킬 |
+| 개발 인프라 (빌드, 아키텍처, git) | `/develop` 스킬 |
+| 코드 컨벤션 | `/convention` 스킬 |
+| 테스트 컨벤션 | `/test-guide` 스킬 |
 | 배포 절차 | `/deploy` 스킬 |

@@ -47,7 +47,9 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 
 | 상황 | 참조 |
 |------|------|
-| 코드 컨벤션 / 빌드 / 아키텍처 | `/develop` 스킬 |
+| 빌드 / 아키텍처 / git | `/develop` 스킬 |
+| 코드 컨벤션 | `/convention` 스킬 |
+| 테스트 컨벤션 | `/test-guide` 스킬 |
 | 서비스별 오버라이드 | `{서비스}/.claude/ai-context/development-guide.md` |
 | 도메인 용어 | `.claude/ai-context/domain-glossary.md` |
 | PR 작성 | `.claude/ai-context/pr-template.md` |
