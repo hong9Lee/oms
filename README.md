@@ -5,8 +5,11 @@
 | 항목 | 내용 |
 |:---:|:---|
 | **AI Agent** | [Claude Code](https://claude.ai/code) (Anthropic) |
+| **Base Model** | Claude Opus 4.6 |
 | **도메인** | OMS (Order Management System) MSA |
 | **서비스** | oms-core (주문 엔진 · SSOT), oms-plan (외부 API 게이트웨이) |
+
+> 현재 Opus 4.6 기준으로 컨텍스트 구조와 스킬을 설계했다. 모델 버전이 올라가면 해당 버전의 특성(컨텍스트 윈도우, 도구 사용 패턴 등)에 맞춰 개선해 나갈 예정이다.
 
 ---
 
