@@ -1,9 +1,9 @@
 ---
 name: convention
 description: |
-  OMS 코드 컨벤션: 네이밍, 레코드, MapStruct, 클래스 구조, 트랜잭션.
-  사용자가 "코드 작성", "컨벤션", "코드 리뷰", "API 추가", "기능 개발",
-  "MapStruct", "엔티티", "컨트롤러", "서비스" 등을 말할 때 사용.
+  새 코드를 작성하거나 기존 코드를 리뷰할 때 OMS 코드 컨벤션을 적용한다.
+  네이밍 규칙, record 사용, MapStruct 매핑, 클래스 구조, 트랜잭션 설정을 다룬다.
+  아키텍처는 /develop, 테스트 컨벤션은 /test-guide 스킬을 참조.
 allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 

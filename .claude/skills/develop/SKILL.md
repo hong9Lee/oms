@@ -1,8 +1,8 @@
 ---
 name: develop
 description: |
-  OMS MSA 공통 개발 인프라: 기술 스택, 빌드 명령, 헥사고날 아키텍처, git 규칙.
-  사용자가 "개발", "빌드", "아키텍처", "git" 등을 말할 때 사용.
+  빌드, 아키텍처, git 관련 작업 시 OMS MSA 공통 인프라 규칙을 적용한다.
+  기술 스택, 빌드 명령, 헥사고날 아키텍처 구조, git 워크플로우, AI Context 동기화 규칙을 다룬다.
   코드 작성 컨벤션은 /convention, 테스트 컨벤션은 /test-guide 스킬을 참조.
 allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 ---
@@ -133,8 +133,8 @@ PROHIBITED:
   - ❌ 해당 메시지에 "커밋" 없으면 git commit 금지
   - ❌ 해당 메시지에 "push"/"푸쉬" 없으면 git push 금지
   - ❌ 해당 메시지에 "PR" 없으면 gh pr create 금지
-  - ❌ gh pr merge 절대 금지
-  - ❌ main 직접 커밋/push 금지
+  - ❌ gh pr merge 절대 금지 (Hook 강제 차단)
+  - ❌ main 직접 커밋/push 금지 (Hook 강제 차단)
   - ❌ 코드 방향 동의를 git 작업 승인으로 해석 금지
   - ❌ 이전 메시지 git 요청을 이후 메시지에 자동 적용 금지. 이전 "PR 올려"가 현재 메시지에도 유효하다고 판단하지 마라
   - ❌ 문제 지적("이거 잘못됐는데?")을 수정+커밋+push 일괄 지시로 해석 금지. 파일 수정만 하고 git 키워드를 기다려라

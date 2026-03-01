@@ -59,9 +59,11 @@ Backend 모드 ({서비스명}) 로 전환되었습니다.
 
 ## 온디맨드 컨텍스트 로드
 
-| 상황 | 로드할 파일 |
-|------|-----------|
-| API 설계/수정 | `{서비스}/.claude/ai-context/api-spec.json` |
-| Kafka 토픽/이벤트 | `{서비스}/.claude/ai-context/kafka-spec.json` |
-| 외부 시스템 연동 | `{서비스}/.claude/ai-context/external-integration.md` |
-| 배포 | `{서비스}/.claude/ai-context/deploy-guide.md` |
+질문에 따라 필요한 파일을 **자동으로** 읽는다:
+
+| 상황 | 로드할 파일 | 트리거 |
+|------|-----------|--------|
+| API 설계/수정 | `{서비스}/.claude/ai-context/api-spec.json` | REST API 추가/수정/삭제 요청 시 |
+| Kafka 토픽/이벤트 | `{서비스}/.claude/ai-context/kafka-spec.json` | Kafka 관련 코드 작성/수정 요청 시 |
+| 외부 시스템 연동 | `{서비스}/.claude/ai-context/external-integration.md` | 외부 API 호출 관련 작업 시 |
+| 배포 | `{서비스}/.claude/ai-context/deploy-guide.md` | 배포 준비 요청 시 |

@@ -1,9 +1,8 @@
 ---
 name: deploy
 description: |
-  OMS MSA 배포 준비 절차.
-  사용자가 "배포", "deploy", "릴리스", "버전 업", "태그" 등을 말할 때 사용.
-  배포 6단계 절차와 버전 규칙을 정의한다.
+  서비스를 배포할 때 OMS 6단계 배포 절차를 실행한다.
+  버전 확인, 변경 내용 분석, 버전 업데이트, 커밋/push, 태그 생성, 운영배포 요청서 작성을 다룬다.
 allowed-tools: Read, Edit, Bash, Grep, Glob
 ---
 
