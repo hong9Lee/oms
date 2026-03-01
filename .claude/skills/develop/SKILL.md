@@ -99,6 +99,22 @@ DEPENDENCY_RULES:
   | application | domain | adapter, infrastructure |
   | adapter | application, domain, infrastructure | 다른 adapter |
   | infrastructure | 없음 (프레임워크 전용) | domain, application, adapter |
+
+LAYER_DTO:
+  RULE: Port(UseCase)는 인프라 독립적인 Command를 정의. 어댑터 DTO를 Port에 직접 사용 금지
+  FLOW: |
+    Adapter(Kafka/REST) → [어댑터 DTO → Command 변환] → UseCase(Command) → Service → Domain
+  NAMING:
+    PORT_INPUT: {Action}{Domain}Command (SaveOrderCommand)
+    ADAPTER_DTO: 인프라별 이름 (OrderMessage, OrderCreateRequest)
+  LOCATION:
+    PORT_INPUT: application/port/in/
+    ADAPTER_DTO: 해당 어댑터 패키지 (adapter/in/kafka/, adapter/in/web/)
+  ADAPTER_CONVERSION:
+    RULE: 어댑터 DTO → Command 변환은 어댑터의 책임 (비즈니스 로직 아님)
+    MAPPER: 어댑터 패키지에 MapStruct Mapper 위치
+  GOOD: "SaveOrderUseCase.saveOrders(List<SaveOrderCommand>)"
+  BAD: "SaveOrderUseCase.consumeAndSave(List<OrderMessage>)"
 ```
 
 ---
@@ -252,11 +268,13 @@ MAPSTRUCT:
   RULE: 모델 변환은 MapStruct를 사용한다. 수동 매핑 금지
   COMPONENT_MODEL: spring
   NAMING:
-    - Persistence 매퍼: {Domain}PersistenceMapper (Order → OrderPersistenceMapper)
-    - Message 매퍼: {Domain}MessageMapper (OrderMessage → OrderMessageMapper)
+    - Persistence 매퍼: {Domain}PersistenceMapper (adapter/out/persistence/)
+    - Command 매퍼: {Action}{Domain}CommandMapper (application/service/)
+    - Adapter 매퍼: {Source}Mapper (adapter 패키지, 어댑터 DTO → Command)
   LOCATION:
     - Persistence 매퍼: adapter/out/persistence/ 패키지
-    - Message 매퍼: application/service/ 패키지
+    - Command 매퍼: application/service/ 패키지
+    - Adapter 매퍼: 해당 어댑터 패키지 (adapter/in/kafka/ 등)
   RULES:
     - Enum ↔ String 변환은 @Named default 메서드로 정의
     - 일급 컬렉션 ↔ List 변환은 default 메서드로 정의
@@ -349,24 +367,23 @@ KAFKA_CONSUMER:
   RULES:
     - 토픽/groupId 등 설정값은 application.yml에서 @Value로 주입
     - 컨슈머에서 비즈니스 로직/저장 로직 절대 수행 금지
-    - 메시지 수신 → UseCase(Service)에 위임만 수행
+    - 어댑터 DTO → Command 변환 후 UseCase에 위임 (변환은 어댑터 책임)
+    - 도메인 객체 직접 생성 금지. Command까지만 변환
     - 트랜잭션과 연관된 모든 로직은 Service 계층에서 처리
   EXAMPLE_GOOD: |
-    @KafkaListener(
-        topics = {"${kafka.topics.order-1p}", "${kafka.topics.order-3p}"},
-        groupId = "${spring.kafka.consumer.group-id}",
-        containerFactory = "orderKafkaListenerContainerFactory")
     public void consume(List<ConsumerRecord<String, OrderMessage>> records) {
         log.info("주문 메시지 수신 - {}건", records.size());
-        saveOrderUseCase.consumeAndSave(records);
+        List<SaveOrderCommand> commands = records.stream()
+                                                 .map(ConsumerRecord::value)
+                                                 .map(orderMessageMapper::toCommand)
+                                                 .toList();
+        saveOrderUseCase.saveOrders(commands);
     }
   EXAMPLE_BAD: |
-    public void consume(List<ConsumerRecord<String, OrderMessage>> records) {
-        List<Order> orders = records.stream()
-                                    .map(r -> r.value().toDomain())
-                                    .toList();
-        saveOrderUseCase.saveOrders(orders);  // 컨슈머에서 변환+저장 금지
-    }
+    // BAD 1: 어댑터 DTO를 UseCase에 직접 전달
+    saveOrderUseCase.saveOrders(records.stream().map(ConsumerRecord::value).toList());
+    // BAD 2: 컨슈머에서 도메인 객체 직접 생성
+    List<Order> orders = records.stream().map(r -> r.value().toDomain()).toList();
 ```
 
 ---
@@ -499,7 +516,8 @@ AUTO_ALLOWED:
 | infrastructure | Entity, Spring Data Repository는 infrastructure 패키지 |
 | 변수명 | 클래스명 따라감 |
 | 설정값 | application.yml + @Value |
-| 컨슈머 | UseCase 위임만, 비즈니스 로직 금지 |
+| 계층 DTO | Port는 Command, 어댑터 DTO 직접 사용 금지 |
+| 컨슈머 | DTO→Command 변환 후 UseCase 위임, 도메인 직접 생성 금지 |
 | 주석 | 논리 단위마다 // 1., // 2. |
 | MapStruct | 모델 변환은 MapStruct, 수동 매핑 금지 |
 | 트랜잭션 | 다건 저장/변경은 @Transactional |
