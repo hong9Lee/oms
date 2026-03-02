@@ -183,15 +183,19 @@ KAFKA_CONSUMER:
 REDIS_SUBSCRIBER:
   ANNOTATIONS: [@Slf4j, @Component, @RequiredArgsConstructor]
   RULES:
+    - 관심사별 채널 분리 (N채널:N구독자). 하나의 채널에 여러 관심사 혼합 금지
     - 메시지는 record DTO로 역직렬화. JsonNode/Map 직접 파싱 금지
     - 커맨드 분기는 enum switch 사용 (String 비교 금지)
     - private 메서드 호출 시 this. prefix 사용
-  EXAMPLE: |
-    KafkaCommandMessage command = objectMapper.readValue(body, KafkaCommandMessage.class);
-    switch (command.command()) {
-        case SEEK_ALL -> this.handleSeekAll(command);
-        case CONSUMER_STOP -> this.handleConsumerStop();
-    }
+  NAMING:
+    SUBSCRIBER: "{관심사}Subscriber" (OffsetCommandSubscriber, ConsumerLifecycleSubscriber)
+    MESSAGE_DTO: "{관심사}Message" (OffsetCommandMessage, ConsumerLifecycleCommandMessage)
+    ENUM: "{관심사}Type" (OffsetCommandType, ConsumerLifecycleCommandType)
+    CHANNEL: "{관심사}" (offset-command, consumer-command)
+  CONFIG: |
+    // RedisConfig — 채널:구독자 N:N 매핑
+    container.addMessageListener(offsetSubscriber, offsetCommandTopic);
+    container.addMessageListener(lifecycleSubscriber, consumerCommandTopic);
 ```
 
 ---
