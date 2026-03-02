@@ -151,6 +151,10 @@ CONTROLLER:
   ANNOTATIONS: [@Slf4j, @RestController, @RequestMapping("/base-path"), @RequiredArgsConstructor]
   FIELDS: private final {UseCase} {useCaseName}
   RETURN: ResponseEntity<T>
+  RULES:
+    - ❌ 컨트롤러에 서비스 로직 금지. 요청 파싱 + 응답 변환만 수행
+    - AdminClient, RestClient, RedisTemplate 등 인프라 직접 호출 금지
+    - 비즈니스 판단, 조건 분기, 외부 시스템 호출은 Service에 위임
 
 SERVICE:
   ANNOTATIONS: [@Service, @Slf4j, @RequiredArgsConstructor]
