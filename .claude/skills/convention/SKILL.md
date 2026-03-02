@@ -70,6 +70,29 @@ FIRST_CLASS_COLLECTION:
         public int count() { return values.size(); }
     }
 
+MESSAGE_PARSING:
+  RULE: Kafka/Redis 메시지는 record DTO로 역직렬화. JsonNode/Map 직접 파싱 금지
+  GOOD: |
+    records.stream()
+           .map(record -> objectMapper.readValue(record.value(), OrderMessage.class))
+           .filter(Objects::nonNull)
+           .toList();
+  BAD: |
+    JsonNode json = objectMapper.readTree(record.value());
+    String orderId = json.get("orderId").asText(); // ❌ raw JsonNode 파싱
+
+ENUM_DISPATCH:
+  RULE: 문자열 기반 분기는 enum switch로 대체
+  GOOD: |
+    switch (command.command()) {
+        case SEEK_ALL -> this.handleSeekAll(command);
+        case CONSUMER_STOP -> this.handleConsumerStop();
+    }
+  BAD: |
+    switch (commandString) {
+        case "SEEK_ALL" -> handleSeekAll(json); // ❌ String 비교 + this. 누락
+    }
+
 CHAINING_ALIGNMENT:
   RULE: 첫 호출의 "." 위치에 후속 체이닝 정렬
   EXAMPLE: |
@@ -156,6 +179,19 @@ KAFKA_CONSUMER:
     - ❌ 도메인 객체 직접 생성 금지. Command까지만 변환
     - 토픽/groupId는 @Value로 주입
     - 어댑터 DTO → Command 변환 후 UseCase에 위임
+
+REDIS_SUBSCRIBER:
+  ANNOTATIONS: [@Slf4j, @Component, @RequiredArgsConstructor]
+  RULES:
+    - 메시지는 record DTO로 역직렬화. JsonNode/Map 직접 파싱 금지
+    - 커맨드 분기는 enum switch 사용 (String 비교 금지)
+    - private 메서드 호출 시 this. prefix 사용
+  EXAMPLE: |
+    KafkaCommandMessage command = objectMapper.readValue(body, KafkaCommandMessage.class);
+    switch (command.command()) {
+        case SEEK_ALL -> this.handleSeekAll(command);
+        case CONSUMER_STOP -> this.handleConsumerStop();
+    }
 ```
 
 ---
